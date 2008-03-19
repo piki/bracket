@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+#
+# Make sure that every team in every tournament subdirectory is in its
+# canonical form, either the ESPN website form or a shortened version from
+# the teams-espn-map file.
+
+open(INP, "<teams-espn");
+while (<INP>) { chomp; $ok{$_} = 1; }
+open(INP, "<teams-espn-map");
+while (<INP>) { chomp; /(.*) => (.*)/; delete $ok{$1}; $ok{$2} = 1; }
+
+foreach my $fn (<*/teams>) {
+	open(INP, "<$fn");
+	$. = 0;
+	while (<INP>) {
+		chomp;
+		if (/^(team\s+\d+\.\d+\s+)(.*)/) {
+			if (!exists $ok{$2}) {
+				print "$fn:$.: $2\n";
+				$err++;
+			}
+		}
+	}
+}
+
+if ($err) {
+	print STDERR "$err errors\n";
+}
+else {
+	print STDERR "all teams found\n";
+}

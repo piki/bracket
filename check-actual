@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+#
+# Check that...
+#   * the winner of each game was a participant in that game
+#   * nobody won a game after losing a game (redundant?)
+#   * every score is N-M, with N > M
+
+require 'bracket.pl';
+
+if (! @ARGV || ! -d $ARGV[0]) {
+	print STDERR "Usage:\n  $0 yyyyt\n\nE.g., $0 2008m\n";
+	exit 1;
+}
+
+my $tourney = $ARGV[0];
+setup("$tourney/teams");
+my @refs = read_winners("$tourney/actual");
+my @actual = @{$refs[0]};
+my @score_winner = @{$refs[1]};
+my @score_loser = @{$refs[2]};
+my %out = teams_out(@actual);
+
+$errors = 0;
+
+for ($i=63; $i>=1; $i--) {
+	my ($a, $b);
+	if ($i >= 32) {
+		($a, $b) = split/,/, $game{$i};
+	}
+	else {
+		($a, $b) = @actual[$i*2, $i*2+1];
+	}
+	if (defined $actual[$i] && $actual[$i] != $a && $actual[$i] != $b) {
+		print "$team{$actual[$i]} ($actual[$i]) didn't play in game $i\n";
+		$errors++;
+	}
+}
+foreach (1..63) {
+	if (defined $actual[$_] && $out{$actual[$_]}
+			&& 2**(7-$out{$actual[$_]}) > $_) {
+		print "$team{$actual[$_]} ($actual[$_]) out in round $out{$actual[$_]} but winning game $_.\n";
+		$errors++;
+	}
+}
+foreach $i (1..63) {
+	next if !(defined $score_winner[$i] || defined $score_loser[$i]);
+	if ($score_winner[$i] < $score_loser[$i]) {
+		print "Game $i: winner score comes first\n";
+		$errors++;
+	}
+	if ($score_winner[$i] == $score_loser[$i]) {
+		print "Game $i: a tie?\n";
+		$errors++;
+	}
+}
+
+print "No errors\n" if $errors == 0;

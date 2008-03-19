@@ -1,0 +1,99 @@
+#!/usr/bin/perl -w
+
+# args
+if ($ARGV[0] && $ARGV[0] =~ /^\d{4}[mnwc]$/) {
+	$tourney = $ARGV[0] || "2008m";
+	shift;
+}
+else { $tourney = "2008m"; }
+if ($ARGV[0] && $ARGV[0] =~ /^(\d{8})$/) { $date = $1; }
+
+# common setup
+require 'bracket.pl';
+setup("$tourney/teams");
+my @actual = @{(read_winners("$tourney/actual"))[0]};
+foreach (keys %team) { $reverse{$team{$_}} = $_; }
+
+# read the file we're about to clobber
+open(ACTUAL, "$tourney/actual");
+while (<ACTUAL>) {
+	chomp;
+	if (/^(\d+)\s+/) {
+		$out{$1} = $_;
+	}
+}
+
+# team short-name mappings
+open(INP, "<teams-espn-map");
+while (<INP>) { /(.*) => (.*)/; $rename{$1} = $2; }
+
+# create %lookup array to map "$team1$team2" => game number
+foreach my $g (1..31) {
+	if ($actual[$g*2] && $actual[$g*2+1]) {
+		$lookup{$team{$actual[$g*2]}.$team{$actual[$g*2+1]}} = $g;
+		$lookup{$team{$actual[$g*2+1]}.$team{$actual[$g*2]}} = $g;
+	}
+}
+foreach my $g (32..63) {
+	my ($a, $b) = split/,/, $game{$g};
+	next if !$team{$a} || !$team{$b};
+	$lookup{$team{$a}.$team{$b}} = $g;
+	$lookup{$team{$b}.$team{$a}} = $g;
+}
+
+# scrape an ESPN scoreboard page
+my ($sport, $confId);
+if ($tourney =~ /m$/) { $sport = "ncb"; $confId = 100; }
+elsif ($tourney =~ /n$/) { $sport = "ncb"; $confId = 50; }
+elsif ($tourney =~ /c$/) { $sport = "ncb"; $confId = 55; }
+elsif ($tourney =~ /w$/) { $sport = "ncw"; $confId = 100; }
+my $url = "http://sports.espn.go.com/$sport/scoreboard?confId=$confId";
+if ($date) { $url .= "&date=$date"; }
+print STDERR "$url\n";
+open(WGET, "wget -qO - \"$url\"|") || die "wget: $!";
+open(SCOREBOARD, ">scoreboard.html");
+#open(WGET, "<scoreboard.html");
+while (<WGET>) {
+	print SCOREBOARD;
+	if (/-asT">(\d+)<.*-hsT">(\d+)</) {
+		$away_score = $1;
+		$home_score = $2;
+		#print STDERR "score=\"$away_score\" to \"$home_score\"\n";
+		$home = $rename{$home} || $home;
+		$away = $rename{$away} || $away;
+		my $g = $lookup{$home.$away};
+		if (!$g) {
+			print STDERR "Can't find game number for \"$home\" vs. \"$away\"\n";
+			next;
+		}
+		my ($ot) = $clock =~ /^Final - (\d*)\w*\s*OT/;
+		$ot = defined $ot ? " ${ot}OT" : "";
+		my $gstring;
+		if ($home_score > $away_score) {
+			$gstring = "$g $reverse{$home} $home_score-$away_score$ot";
+			$out{$g} = $gstring if $clock =~ /^Final/;
+		}
+		else {
+			$gstring = "$g $reverse{$away} $away_score-$home_score$ot";
+			$out{$g} = $gstring if $clock =~ /^Final/;
+		}
+		printf STDERR "%-20s # %16s  %-27s    %s\n",
+			$gstring, "[$clock]", "($reverse{$home}) $home - $home_score",
+			"($reverse{$away}) $away - $away_score";
+	}
+	if (/-clock">(.*?)<.*clubhouse\?teamId=\d+">(.*?)<\/a> <span id="\d+-aR/) {
+		$clock = $1;
+		$away = $2;
+		#print STDERR "clock=\"$clock\" away=\"$away\"\n";
+	}
+	elsif (/clubhouse\?teamId=\d+">(.*?)<\/a> <span id="\d+-hR/) {
+		$home = $1;
+		#print STDERR "home=\"$home\"\n";
+	}
+}
+
+open(ACTUAL, ">$tourney/actual.new");
+foreach (sort {$b cmp $a} keys %out) {
+	print ACTUAL "$out{$_}\n";
+}
+rename("$tourney/actual.new", "$tourney/actual");
