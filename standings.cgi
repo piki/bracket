@@ -8,7 +8,7 @@ $q = new CGI;
 
 print "Content-type: text/html\n";
 
-my $tourney = $q->param('t') || "2008m";
+my $tourney = $q->param('t') || "2010m";
 my $sort = $q->param('sort') || "n";
 if (defined $q->param('hidejunk')) {
 	$hide = $q->param('hidejunk');
@@ -148,7 +148,7 @@ print qq(
 
 	<p>
 );
-#print "Code so far: ".(join'.', get_perfect_code())."<br>
+print "Code so far: ".(join'.', get_perfect_code())."<br>\n";
 
 sub get_scores {
 	my @predicted = @{$_[0]};

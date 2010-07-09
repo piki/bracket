@@ -1,14 +1,17 @@
 #!/usr/bin/perl -w
 
+#$canned = 1;
+
 # args
 if ($ARGV[0] && $ARGV[0] =~ /^\d{4}[mnwc]$/) {
-	$tourney = $ARGV[0] || "2008m";
+	$tourney = $ARGV[0] || "2010m";
 	shift;
 }
-else { $tourney = "2008m"; }
+else { $tourney = "2010m"; }
 if ($ARGV[0] && $ARGV[0] =~ /^(\d{8})$/) { $date = $1; }
 
 # common setup
+scalar %game;  # suppress a warning about $game being used only once
 require 'bracket.pl';
 setup("$tourney/teams");
 my @actual = @{(read_winners("$tourney/actual"))[0]};
@@ -50,12 +53,37 @@ elsif ($tourney =~ /w$/) { $sport = "ncw"; $confId = 100; }
 my $url = "http://sports.espn.go.com/$sport/scoreboard?confId=$confId";
 if ($date) { $url .= "&date=$date"; }
 print STDERR "$url\n";
-open(WGET, "wget -qO - \"$url\"|") || die "wget: $!";
-open(SCOREBOARD, ">scoreboard.html");
-#open(WGET, "<scoreboard.html");
+if ($canned) {
+	open(WGET, "<scoreboard.html");
+}
+else {
+	open(WGET, "wget -qO - \"$url\"|") || die "wget: $!";
+	open(SCOREBOARD, ">scoreboard.html");
+}
+$/ = "gamebox";
 while (<WGET>) {
-	print SCOREBOARD;
-	if (/-asT">(\d+)<.*-hsT">(\d+)</) {
+	print SCOREBOARD if !$canned;
+	if (m!<a href="clubhouse\?teamId=\d+">([^<]+)</a></div></td><td class="team-score"><span id="\d+-awayHeaderScore!) {
+		$away = $1;
+		#print STDERR "away=\"$away\"\n";
+	}
+	if (m!<a href="clubhouse\?teamId=\d+">([^<]+)</a></div></td><td class="team-score"><span id="\d+-homeHeaderScore!) {
+		$home = $1;
+		#print STDERR "home=\"$home\"\n";
+	}
+	if (/-statusLine1">(Final[^<]*)/) {
+		$clock = $1;
+		#print STDERR "clock=\"$clock\"\n";
+	}
+	elsif (m!<li id="\d+-statusLine1">([^<]*)</li><li[^>]*><span id="\d+-statusLine2Left">([^<]*)</span><span id="\d+-statusLine2Right"[^>]*>([^<]*)</span>!) {
+		$clock = "$1 $2 $3";
+		#print STDERR "clock=\"$clock\"\n";
+	}
+	elsif (/class="time-remaining" style="display: inline">([0-9:]*)/) {
+		$clock = $1;
+		#print STDERR "clock=\"$clock\"\n";
+	}
+	if (/-awayHeaderScore">(\d+)<.*-homeHeaderScore">(\d+)</) {
 		$away_score = $1;
 		$home_score = $2;
 		#print STDERR "score=\"$away_score\" to \"$home_score\"\n";
@@ -80,15 +108,6 @@ while (<WGET>) {
 		printf STDERR "%-20s # %16s  %-27s    %s\n",
 			$gstring, "[$clock]", "($reverse{$home}) $home - $home_score",
 			"($reverse{$away}) $away - $away_score";
-	}
-	if (/-clock">(.*?)<.*clubhouse\?teamId=\d+">(.*?)<\/a> <span id="\d+-aR/) {
-		$clock = $1;
-		$away = $2;
-		#print STDERR "clock=\"$clock\" away=\"$away\"\n";
-	}
-	elsif (/clubhouse\?teamId=\d+">(.*?)<\/a> <span id="\d+-hR/) {
-		$home = $1;
-		#print STDERR "home=\"$home\"\n";
 	}
 }
 

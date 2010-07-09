@@ -5,7 +5,7 @@ use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: text/html\n\n";
 
-my $tourney = $q->param('t') || "2008m";
+my $tourney = $q->param('t') || "2010m";
 setup("$tourney/teams");
 my $who = $q->param('n');
 my @actual = @{(read_winners("$tourney/actual"))[0]};

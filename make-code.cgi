@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 
 require 'bracket.pl';
-my $tourney = $ARGV[0] || "2008m";
+my $tourney = $ARGV[0] || "2010m";
 setup("$tourney/teams");
 
 use CGI qw/:standard/;
@@ -49,7 +49,7 @@ for ($i=63; $i>=1; $i--) {
 print "<br>\n";
 
 $code = join '.', @output;
-print qq(<hr>Send this string to <a href="mailto:reynolds\@cs.duke.edu?subject=bracket&body=$code">Patrick</a>: <b>);
+print qq(<hr>Send this string to <a href="mailto:dukepiki\@gmail.com?subject=bracket&body=$code">Patrick</a>: <b>);
 print "$code</b>\n";
 print "<br>\n";
 

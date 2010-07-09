@@ -7,7 +7,7 @@ $adjx = 0.05;
 $marksize = 0.12;
 
 require 'bracket.pl';
-require '/usr/project/cgi/reynolds/ps.pl';
+require 'ps.pl';
 use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: application/postscript\n\n";

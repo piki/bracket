@@ -8,7 +8,7 @@ print "Content-type: text/html\n\n";
 print "<link rel=\"stylesheet\" type=\"text/css\" href=\"bracket.css\">\n";
 $|=1;
 
-my $tourney = $q->param('t') || "2008m";
+my $tourney = $q->param('t') || "2010m";
 my $code = $q->param('c') || "0.0.0.0.0.0.0.0";
 $tourney =~ s/[^0-9mwn]+//g;
 
@@ -51,7 +51,7 @@ function pick(evt,number) {
 <body>
 
 Welcome to the new bracket entry page!  If it doesn't work for you, send
-<a href="mailto:reynolds\@cs.duke.edu">me</a> an email and use <a
+<a href="mailto:dukepiki\@gmail.com">me</a> an email and use <a
 href="old-make-entry.cgi">the old page</a> instead.
 <br>
 <div style="visibility: visible; display: none;" id="dek"></div>
@@ -134,7 +134,7 @@ function update_code() {
 	}
 	var theCode = code.join(".");
 	document.getElementById("code").innerHTML = theCode;
-	document.getElementById("sendmail").href = "mailto:reynolds\@cs.duke.edu?subject=bracket%20code&body=" + theCode;
+	document.getElementById("sendmail").href = "mailto:dukepiki\@gmail.com?subject=bracket%20code&body=" + theCode;
 	document.getElementById("saveit").href = "make-entry.cgi?t=$tourney&c="+theCode;
 }
 
@@ -239,7 +239,7 @@ sub finalfour {
 Your bracket code:<br>
 <b><div id="code">$code</div></b>
 <p>
-Mail it to <a id="sendmail" href="mailto:reynolds\@cs.duke.edu?subject=bracket%20code&body=$code">Patrick</a>
+Mail it to <a id="sendmail" href="mailto:dukepiki\@gmail.com?subject=bracket%20code&body=$code">Patrick</a>
 <p>
 <a id="saveit" href="make-entry.cgi?t=$tourney&c=$code">Save</a> this page for later.
 </center>
