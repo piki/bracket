@@ -8,7 +8,7 @@ $q = new CGI;
                                                                                                                                            
 print "Content-type: text/html\n\n";
                                                                                                                                            
-my $tourney = $q->param('t') || "2010m";
+my $tourney = $q->param('t') || "2011m";
 my $hide = $q->cookie('hidejunk');
 setup("$tourney/teams");
 my @actual = @{(read_winners("$tourney/actual"))[0]};
@@ -33,7 +33,7 @@ print qq(
 <html>
 <head>
 <title>Eliminated!</title>
-<link rel="stylesheet" type="text/css" href="bracket.css">
+<link rel="stylesheet" type="text/css" href="/bracket.css">
 </head>
 <body>
 <table rules="all" border=1 cellpadding=2>

@@ -5,7 +5,7 @@ use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: text/html\n\n";
 
-my $tourney = $q->param('t') || "2010m";
+my $tourney = $q->param('t') || "2011m";
 my $hide = $q->cookie('hidejunk');
 setup("$tourney/teams");
 my $gameno = $q->param('g');
@@ -41,7 +41,7 @@ while (<CS>) {
 %out = teams_out(@actual);
 
 print "<html>\n<head>\n<title>Results for $gametitle</title>\n";
-print "<link rel=\"stylesheet\" type=\"text/css\" href=\"bracket.css\">\n";
+print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/bracket.css\">\n";
 print "</head>\n\n";
 print "<body>\n";
 print "<table border=1 rules=\"rows\" cellpadding=3>\n";

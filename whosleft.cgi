@@ -5,13 +5,13 @@ use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: text/html\n\n";
 
-my $tourney = $q->param('t') || "2010m";
+my $tourney = $q->param('t') || "2011m";
 setup("$tourney/teams");
 @actual = @{(read_winners("$tourney/actual"))[0]};
 %out = teams_out(@actual);
 
 print "<html>\n<head>\n<title>Who's left?</title>\n";
-print "<link rel=\"stylesheet\" type=\"text/css\" href=\"bracket.css\">\n";
+print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/bracket.css\">\n";
 print "</head>\n\n";
 print "<body>\n";
 print "Teams remaining are shown in green.\n";

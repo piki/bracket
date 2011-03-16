@@ -5,10 +5,10 @@ require 'bracket.pl';
 use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: text/html\n\n";
-print "<link rel=\"stylesheet\" type=\"text/css\" href=\"bracket.css\">\n";
+print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/bracket.css\">\n";
 $|=1;
 
-my $tourney = $q->param('t') || "2010m";
+my $tourney = $q->param('t') || "2011m";
 $tourney =~ s/[^0-9mwn]+//g;
 my $title = make_title($tourney);
 if ($q->param('actual')) {

@@ -5,7 +5,7 @@ use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: text/html\n\n";
 
-my $tourney = $q->param('t') || "2010m";
+my $tourney = $q->param('t') || "2011m";
 setup("$tourney/teams");
 my @actual = @{(read_winners("$tourney/actual"))[0]};
 my %out = teams_out(@actual);
@@ -65,7 +65,7 @@ print qq(
 <html>
 <head>
 <title>Aggressiveness standings</title>
-<link rel="stylesheet" type="text/css" href="bracket.css">
+<link rel="stylesheet" type="text/css" href="/bracket.css">
 </head>
 <body>
 Click on a column name to sort.  Click on 'HTML' or 'Postscript' to

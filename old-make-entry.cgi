@@ -8,7 +8,7 @@ use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: text/html\n\n";
 
-my $tourney = $q->param('t') || "2010m";
+my $tourney = $q->param('t') || "2011m";
 my $title = make_title($tourney);
 setup("$tourney/teams");
 @winner = find_winners("0.0.0.0.0.0.0.0");
@@ -35,7 +35,7 @@ function fixup(number) {
 </head>
 <body>
 <h1>$title</h1>
-<form name="theform" action="http://cgi.cs.duke.edu/~reynolds/bracket/make-code.cgi" method="post">
+<form name="theform" action="make-code.cgi" method="post">
 );
 
 foreach (1..4) { bracket($_, uc($bracket[$_-1])); }

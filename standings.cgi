@@ -8,11 +8,11 @@ $q = new CGI;
 
 print "Content-type: text/html\n";
 
-my $tourney = $q->param('t') || "2010m";
+my $tourney = $q->param('t') || "2011m";
 my $sort = $q->param('sort') || "n";
 if (defined $q->param('hidejunk')) {
 	$hide = $q->param('hidejunk');
-	print "Set-Cookie: hidejunk=$hide; expires=Mon, 16-Mar-2015 12:34:56 GMT; domain=cgi.cs.duke.edu; path=/~reynolds/\n\n";
+	print "Set-Cookie: hidejunk=$hide; expires=Mon, 16-Mar-2015 12:34:56 GMT; domain=piki.org; path=/cgi-bin/bracket/\n\n";
 	print "<!-- hide param=\"$hide\" -->\n";
 }
 else {
@@ -65,7 +65,7 @@ print qq(
 <html>
 <head>
 <title>$title: standings</title>
-<link rel="stylesheet" type="text/css" href="bracket.css">
+<link rel="stylesheet" type="text/css" href="/bracket.css">
 </head>
 
 <body>

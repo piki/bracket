@@ -8,7 +8,7 @@ $q = new CGI;
 
 print "Content-type: text/html\n\n";
 
-my $tourney = $q->param('t') || "2010m";
+my $tourney = $q->param('t') || "2011m";
 setup("$tourney/teams");
 my @schedule = read_schedule("$tourney/schedule");
 my @ret = read_winners("$tourney/actual");
@@ -20,7 +20,7 @@ print qq(
 <html>
 <head>
 <title>TV schedule</title>
-<link rel="stylesheet" type="text/css" href="bracket.css">
+<link rel="stylesheet" type="text/css" href="/bracket.css">
 </head>
 
 <body>
