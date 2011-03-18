@@ -22,6 +22,13 @@ a {
 	font-weight:bold; 
 	color: #0000ff;
 }
+span.eliminated {
+	color: #990000;
+	text-decoration: line-through;
+}
+span.confirmed {
+	color: #006600;
+}
 #popup td a { color: #ffffff; }
 A:active  { color: #ff0000;  }
 A:visited { color: #0000ff;  }

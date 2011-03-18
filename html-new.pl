@@ -122,52 +122,38 @@ sub finalfour {
 			? ($score_winner[$g], $score_loser[$g])
 			: ($score_loser[$g], $score_winner[$g]);
 
-		if (defined $winner[$g*2+1]) {
-			$ff[$g] = "<a href=\"onegame.cgi?t=$tourney&g=".($g*2+1)."\">";
-			if (($actual[$g*2+1] && $actual[$g*2+1] != $winner[$g*2+1])
-					|| (!$actual[$g*2+1] && $out{$winner[$g*2+1]})) {
-				$ff[$g] .= "<font color=\"#990000\"><strike>";
-				$ff[$g] .= "(".int($winner[$g*2+1]).") $team{$winner[$g*2+1]}</a>";
-				$ff[$g] .= "</strike></font>";
+		$ff[$g] = "";
+		foreach my $n (0..1) {
+			if (defined $winner[$g*2+1-$n]) {
+				$ff[$g] .= "<a href=\"onegame.cgi?t=$tourney&g=".($g*2+1-$n)."\">";
+				my $text = "(".int($winner[$g*2+1-$n]).") $team{$winner[$g*2+1-$n]}</a>";
+				if (eliminated($g*2+1-$n)) {
+					$text = qq(<span class="eliminated">$text</span>);
+				}
+				elsif (confirmed($g*2+1-$n)) {
+					$text = qq(<span class="confirmed">$text</span>);
+				}
+				$ff[$g] .= $text;
+				if (defined $score[$n]) { $ff[$g] .= " - $score[$n]"; }
+				if (!$n) {
+					if ($overtimes[$g] == 1) { $ff[$g] .= " (OT)"; }
+					elsif ($overtimes[$g] > 1) { $ff[$g] .= " ($overtimes[$g]OT)"; }
+					$ff[$g] .= "<br>";
+				}
 			}
 			else {
-				$ff[$g] .= "(".int($winner[$g*2+1]).") $team{$winner[$g*2+1]}</a>";
+				$ff[$g] .= "<a href=\"onegame.cgi?t=$tourney&g=".($g*2+1-$n)."\">"
+					. "$unknown</a><br>";
 			}
-			if (defined $score[0]) { $ff[$g] .= " - $score[0]"; }
-			if ($overtimes[$g] == 1) { $ff[$g] .= " (OT)"; }
-			elsif ($overtimes[$g] > 1) { $ff[$g] .= " ($overtimes[$g]OT)"; }
-			$ff[$g] .= "<br>";
-		}
-		else {
-			$ff[$g] = "<a href=\"onegame.cgi?t=$tourney&g=".($g*2+1)."\">"
-			        . "$unknown</a><br>";
-		}
-		if (defined $winner[$g*2]) {
-			$ff[$g].= "<a href=\"onegame.cgi?t=$tourney&g=".($g*2)."\">";
-			if (($actual[$g*2] && $actual[$g*2] != $winner[$g*2])
-					|| (!$actual[$g*2] && $out{$winner[$g*2]})) {
-				$ff[$g] .= "<font color=\"#990000\"><strike>";
-				$ff[$g] .= "(".int($winner[$g*2]).") $team{$winner[$g*2]}</a>";
-				$ff[$g] .= "</strike></font>";
-			}
-			else {
-				$ff[$g] .= "(".int($winner[$g*2]).") $team{$winner[$g*2]}</a>";
-			}
-			if (defined $score[1]) { $ff[$g] .= " - $score[1]"; }
-		}
-		else {
-			$ff[$g] .= "<a href=\"onegame.cgi?t=$tourney&g=".($g*2)."\">"
-			        . "$unknown</a>";
 		}
 	}
 	if (defined $winner[1]) {
+		$champ = "(".int($winner[1]).") $team{$winner[1]}</a>";
 		if ($out{$winner[1]}) {
-			$champ = "<font color=\"#990000\"><strike>";
-			$champ .= "(".int($winner[1]).") $team{$winner[1]}</a>";
-			$champ .= "</strike></font>";
+			$champ = qq(<span class="eliminated">$champ</span>);
 		}
-		else {
-			$champ = "(".int($winner[1]).") $team{$winner[1]}</a>";
+		elsif ($actual[1]) {
+			$champ = qq(<span class="confirmed">$champ</span>);
 		}
 	}
 	else {
@@ -229,16 +215,16 @@ sub print_team {
 		else {
 			print "<a href=\"team.cgi?t=$tourney&q=".esc($team{$winner[$g]})."\">";
 		}
-		if (($actual[$g] && $actual[$g] != $winner[$g])
-				|| (!$actual[$g] && $out{$winner[$g]})) {
-			print "<font color=\"#990000\"><strike>";
-			print "<!-- actual=\"$actual[$g]\" pick=\"$winner[$g]\" out=\"$out{$winner[$g]}\" -->";
-			print "(".int($winner[$g]).") $team{$winner[$g]}</a>";
-			print "</strike></font>";
+
+		my $text = "(".int($winner[$g]).") $team{$winner[$g]}</a>";
+		if (eliminated($g)) {
+			print qq(<span class="eliminated">$text</span>);
 		}
-		else {
-			print "(".int($winner[$g]).") $team{$winner[$g]}</a>";
+		elsif (confirmed($g)) {
+			print qq(<span class="confirmed">$text</span>);
 		}
+		else { print $text; }
+
 		if (defined $score) { print " - $score"; }
 		if ($ot == 1) { print " (OT)"; }
 		elsif ($ot > 1) { print " (${ot}OT)"; }
@@ -247,4 +233,14 @@ sub print_team {
 		print "<a href=\"onegame.cgi?t=$tourney&g=$g\">";
 		print "$unknown</a>";
 	}
+}
+
+sub eliminated {
+	my $g = shift;
+	($actual[$g] && $actual[$g] != $winner[$g]) || (!$actual[$g] && $out{$winner[$g]});
+}
+
+sub confirmed {
+	my $g = shift;
+	!eliminated($g) && $actual[$g];
 }
