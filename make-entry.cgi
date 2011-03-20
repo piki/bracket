@@ -5,7 +5,7 @@ require 'bracket.pl';
 use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: text/html\n\n";
-print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/bracket.css\">\n";
+print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/_bracket.css\">\n";
 $|=1;
 
 my $tourney = $q->param('t') || "2011m";

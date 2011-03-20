@@ -27,7 +27,7 @@ foreach my $tourney (<????$tourney>) {
 }
 
 print "<html>\n<head>\n<title>Bracket statistics</title>\n";
-print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/bracket.css\">\n";
+print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/_bracket.css\">\n";
 print "<style type=\"text/css\">\nth {color:#000000;background:#cccccc}\n</style>\n";
 print "</head>\n<body>\n";
 

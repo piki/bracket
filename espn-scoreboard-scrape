@@ -118,13 +118,14 @@ foreach (sort {$b cmp $a} keys %out) {
 }
 rename("$tourney/actual.new", "$tourney/actual");
 
+my %warned_not_found;
 sub do_snapshot_command {
 	my $gameno = $espn_to_gameno{$_[0]};
 	my $str = $_[1];
 	$str =~ tr/\r/\n/;
 	#print STDERR "<COMMAND> [$gameno/$_[0]] $str\n";
 	if (!$gameno) {
-		print STDERR "Game \"$_[0]\" not found???\n";
+		print STDERR "Game \"$_[0]\" not found???\n" if !$warned_not_found{$_[0]}++;
 		return;
 	}
 	if ($str =~ /^01(\w+)/) {      # home outcome (loser, winner)

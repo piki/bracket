@@ -65,7 +65,7 @@ print qq(
 <html>
 <head>
 <title>Aggressiveness standings</title>
-<link rel="stylesheet" type="text/css" href="/bracket.css">
+<link rel="stylesheet" type="text/css" href="/_bracket.css">
 </head>
 <body>
 Click on a column name to sort.  Click on 'HTML' or 'Postscript' to

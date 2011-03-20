@@ -20,7 +20,7 @@ print qq(
 <html>
 <head>
 <title>TV schedule</title>
-<link rel="stylesheet" type="text/css" href="/bracket.css">
+<link rel="stylesheet" type="text/css" href="/_bracket.css">
 </head>
 
 <body>

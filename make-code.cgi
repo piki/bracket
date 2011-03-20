@@ -9,7 +9,7 @@ use CGI qw/:standard/;
 $q = new CGI;
 
 print "Content-type: text/html\n\n";
-print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/bracket.css\">\n";
+print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/_bracket.css\">\n";
 
 for ($i=63; $i>=32; $i--) {
   my $win = $q->param("g$i");

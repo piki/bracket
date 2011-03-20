@@ -33,7 +33,7 @@ print qq(
 <html>
 <head>
 <title>Eliminated!</title>
-<link rel="stylesheet" type="text/css" href="/bracket.css">
+<link rel="stylesheet" type="text/css" href="/_bracket.css">
 </head>
 <body>
 <table rules="all" border=1 cellpadding=2>

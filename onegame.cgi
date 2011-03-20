@@ -41,7 +41,7 @@ while (<CS>) {
 %out = teams_out(@actual);
 
 print "<html>\n<head>\n<title>Results for $gametitle</title>\n";
-print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/bracket.css\">\n";
+print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/_bracket.css\">\n";
 print "</head>\n\n";
 print "<body>\n";
 print "<table border=1 rules=\"rows\" cellpadding=3>\n";
