@@ -4,10 +4,10 @@
 
 # args
 if ($ARGV[0] && $ARGV[0] =~ /^\d{4}[mnwc]$/) {
-	$tourney = $ARGV[0] || "2011m";
+	$tourney = $ARGV[0] || "2012m";
 	shift;
 }
-else { $tourney = "2011m"; }
+else { $tourney = "2012m"; }
 if ($ARGV[0] && $ARGV[0] =~ /^(\d{8})$/) { $date = $1; }
 
 # common setup
@@ -60,7 +60,7 @@ else {
 	open(WGET, "wget -qO - \"$url\"|") || die "wget: $!";
 	open(SCOREBOARD, ">scoreboard.html");
 }
-$/ = "gamebox";
+$/ = "</div></div></div><div";
 while (<WGET>) {
 	my $current_game;
 	my $g;
@@ -68,12 +68,12 @@ while (<WGET>) {
 	if (m!var\s+snapshotId\s+=\s+(\d+)!) {
 		$snapshotId = $1;
 	}
-	if (m!<a href="clubhouse\?teamId=\d+">([^<]+)</a></div></td><td class="team-score"><span id="\d+-awayHeaderScore!) {
+	if (m!aTeamName"><a title="([^"]+)" href="http://espn.go.com/mens-college-basketball/team/_/id/\d+/!) {
 		$away = $1;
 		$away = $rename{$away} || $away;
 		#print STDERR "away=\"$away\"\n";
 	}
-	if (m!<a href="clubhouse\?teamId=\d+">([^<]+)</a></div></td><td class="team-score"><span id="\d+-homeHeaderScore!) {
+	if (m!hTeamName"><a title="([^"]+)" href="http://espn.go.com/mens-college-basketball/team/_/id/\d+/!) {
 		$home = $1;
 		$home = $rename{$home} || $home;
 		#print STDERR "home=\"$home\"\n";
@@ -93,8 +93,8 @@ while (<WGET>) {
 		$state{$g}{clock} = $1;
 		#print STDERR "clock=\"$state{$g}{clock}\"\n";
 	}
-	elsif (m!<li id="\d+-statusLine1">([^<]*)</li><li[^>]*><span id="\d+-statusLine2Left">([^<]*)</span><span id="\d+-statusLine2Right"[^>]*>([^<]*)</span>!) {
-		$state{$g}{clock} = "$2 $3";
+	elsif (m!statusLine1">([^<]*)<!) {
+		$state{$g}{clock} = $1;
 		#print STDERR "clock=\"$state{$g}{clock}\"\n";
 	}
 	elsif (/class="time-remaining" style="display: inline">([0-9:]*)/) {
@@ -142,9 +142,9 @@ sub do_snapshot_command {
 		#print STDERR "[$gameno] Home score is: \"$1\"\n";
 		$state{$gameno}{home_score} = $1;
 	}
-	if ($str =~ /^05(\w+)/) {      # time label (Final)
-		#print STDERR "[$gameno] Time is: \"$1\"\n";
-		$state{$gameno}{clock} = $1;
+	if ($str =~ /^05(.nbsp;\s*)?(.+)/) {      # time label (Final)
+		#print STDERR "[$gameno] Time is: \"$2\"\n";
+		$state{$gameno}{clock} = $2;
 	}
 	if ($str =~ /^06(\w+)/) {      # period label (1st, 2nd, Halftime)
 		#print STDERR "[$gameno] Period is: \"$1\"\n";

@@ -8,7 +8,7 @@ use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: text/html\n\n";
 
-my $tourney = $q->param('t') || "2011m";
+my $tourney = $q->param('t') || "2012m";
 my $title = make_title($tourney);
 setup("$tourney/teams");
 @winner = find_winners("0.0.0.0.0.0.0.0");
