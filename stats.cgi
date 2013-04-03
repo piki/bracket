@@ -103,6 +103,35 @@ foreach my $seed (1..16) {
 }
 print "</table>\n";
 
+my $year = 1900 + (localtime())[5];
+print "<p><table rules=\"all\" border=1 cellpadding=3\n<tr>\n<th colspan=4>";
+print "Longest active tournament streaks</th></tr><tr><th>Team</th><th>Years</th><th>Avg seed</th><th>Avg games won</th></tr>\n";
+my %streak;
+my %avgseed;
+my %avgwon;
+foreach my $t (keys %seeding) {
+	my $y = $year;
+	my $sum = 0;
+	my $totalwon = 0;
+	while (exists $seeding{$t}{$y}) {
+		$sum += $seeding{$t}{$y};
+		$totalwon += $gameswon{$t}{$y};
+print "<!-- gameswon{$t}{$y} = $gameswon{$t}{$y} -->\n";
+		$y--;
+	}
+	if ($year > $y) {
+		$streak{$t} = $year - $y;
+		$avgseed{$t} = $sum / ($year - $y);
+		$avgwon{$t} = $totalwon / ($year - $y);
+	}
+}
+my $count = 0;
+foreach my $t (sort { $streak{$b} <=> $streak{$a} || $avgwon{$b} <=> $avgwon{$a} } keys %streak) {
+	printf qq(<tr><td><a href="team.cgi?t=$year$tourney&q=$t">%s</a></td><td>%d</td><td>%.2f</td><td>%.2f</td></tr>\n), $t, $streak{$t}, $avgseed{$t}, $avgwon{$t};
+	last if ++$count == 20;
+}
+print "</table>\n";
+
 print "<p><table rules=\"all\" border=1 cellpadding=3\n<tr>\n<th colspan=17>";
 print "Odds of winning for all seed pairings</th></tr><tr><td></td>\n";
 foreach my $col (1..16) {
@@ -134,6 +163,7 @@ print "</table>\n";
 
 sub show_stats {
 	my $tourney = $_[0];
+	my ($tyear) = $tourney =~ /^(\d+)/;
 	setup("$tourney/teams");
 	my @refs = read_winners("$tourney/actual");
 	my @actual = @{$refs[0]};
@@ -145,9 +175,13 @@ sub show_stats {
 	foreach my $i (0..7) {
 		foreach my $j (0..3) {
 			my $g = 63 - 8*$j - $i;
+
+			my ($a, $b) = who_played($g, @actual);
+			$seeding{$team{$a}}{$tyear} = int($a);
+			$seeding{$team{$b}}{$tyear} = int($b);
+
 			next if !(defined $score_winner[$g] && defined $score_loser[$g]);
 			my $spread = $score_winner[$g] - $score_loser[$g];
-			my ($a, $b) = who_played($g, @actual);
 			my $name = "(".int($a).")$team{$a} - (".int($b).")$team{$b}, $score_winner[$g]-$score_loser[$g] ($tourney)";
 
 			if ($spread == $closest[$i]) {
@@ -176,6 +210,9 @@ sub show_stats {
 		next if !$actual[$g];
 		my ($a, $b) = who_played($g, @actual);
 		$survived{"$r.".int($a)}++;
+
+		if ($actual[$g] eq $a) { $gameswon{$team{$a}}{$tyear}++; }
+		elsif ($actual[$g] eq $b) { $gameswon{$team{$b}}{$tyear}++; }
 
 		next if !defined $team{$a} || !defined $team{$b};  # Bye
 
