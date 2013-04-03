@@ -1,0 +1,36 @@
+team 1.1  Miss. St.
+team 8.1  Miss. Val. St.
+team 5.1  Bradley
+team 4.1  Providence
+team 6.1  Michigan
+team 3.1  Utah State
+team 7.1 Florida State
+team 2.1  Toledo
+team 1.2 West Virginia
+team 8.2  Delaware State
+team 5.2 Massachusetts
+team 4.2  Alabama
+team 6.2  Drexel
+team 3.2  NC State
+team 7.2  Oklahoma State
+team 2.2  Marist
+team 1.3  Air Force
+team 8.3  Austin Peay
+team 5.3  Georgia
+team 4.3  Fresno State
+team 6.3  DePaul
+team 3.3  Hofstra
+team 7.3  Kansas State
+team 2.3  Vermont
+team 1.4  Clemson
+team 8.4  E. Tenn. St.
+team 5.4  Mississippi
+team 4.4  Appalacian St.
+team 6.4  Missouri State
+team 3.4  San Diego State
+team 7.4  Syracuse
+team 2.4  South Alabama
+region 0 North
+region 1 East
+region 2 West
+region 3 South
