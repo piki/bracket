@@ -237,3 +237,44 @@ sub bitcount {
 	}
 	$res;
 }
+
+#Three arguments:
+# 0 - tourney (2013m)
+# 1 - name (will substitute _ for ' ')
+# 2 - code (0.0.0.0.0.0.0.0)
+sub write_bracket {
+    
+	my $brackets = $_[0].'/cs-brackets';
+    my $name = $_[1];
+    my $code = $_[2];
+
+    $name =~ s/\s+/_/g;
+    $name = find_acceptable_name($brackets, $name);
+
+	open(BRACKETS, ">>$brackets") || die "$brackets: $!";
+
+    print BRACKETS $name.' '.$code."\n";
+}
+
+#Two Arguments:
+# 0 - bracket file relative path (2013m/cs-brackets)
+# 1 - bracket submitter's name
+sub find_acceptable_name{
+	my $brackets = $_[0];
+    my $name = $_[1];
+	open(BRACKETS, "<$brackets") || die "$brackets: $!";
+   
+    my $counter = 0;
+    while(<BRACKETS>){
+        chomp;
+        if(/^$name(\_\d)*/){
+            $counter++;
+        }
+    }
+
+    if($counter > 0) {
+        $name .= '_'.$counter;
+    }
+    $name;
+}
+

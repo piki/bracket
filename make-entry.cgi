@@ -5,11 +5,11 @@ require 'bracket.pl';
 use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: text/html\n\n";
-print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/_bracket.css\">\n";
 $|=1;
 
 my $tourney = $q->param('t') || "2013m";
 my $code = $q->param('c') || "0.0.0.0.0.0.0.0";
+
 $tourney =~ s/[^0-9mwn]+//g;
 
 @colors = ( "#e8e8e8", "#d4d4d4", "#c0c0c0", "#acacac", "#b0b0b0", "#00005f" );
@@ -24,10 +24,11 @@ setup("$tourney/teams");
 print qq#
 <html>
 <head><title>$title</title>
+<link rel="stylesheet" type="text/css" href="/_bracket.css">
 <style type="text/css">
 \#dek    { POSITION:absolute; VISIBILITY:hidden; Z-INDEX:200; }
 </style>
-<script language="javascript">
+<script type="text/javascript">
 var winner = new Array(0#, (join',',@winner), qq#);
 var team = new Array();
 var game = new Array();
@@ -46,6 +47,15 @@ function pick(evt,number) {
 	}
 }
 
+function submit_bracket(tourney, bracket){
+	var name = prompt ("Enter your name", "");
+	if (name != null && name != ""){
+		window.location = "save-entry.cgi?t=$tourney&c=$code&name=" + name;
+	}
+	else {
+		alert("Bracket not submitted");
+	}
+}
 </script>
 </head>
 <body>
@@ -112,6 +122,7 @@ function commit(game, t) {
 
 	update_code();
 }
+
 function update_code() {
 	var code = new Array(0,0,0,0,0,0,0,0);
 	for (g=63; g>=1; g--) {
@@ -134,8 +145,9 @@ function update_code() {
 	}
 	var theCode = code.join(".");
 	document.getElementById("code").innerHTML = theCode;
-	document.getElementById("sendmail").href = "mailto:dukepiki\@gmail.com?subject=bracket%20code&body=" + theCode;
+	document.getElementById("sendmail").onclick = "submit_bracket($tourney," + theCode +")";
 	document.getElementById("saveit").href = "make-entry.cgi?t=$tourney&c="+theCode;
+
 }
 
 </script>
@@ -231,19 +243,20 @@ sub finalfour {
   </tr><tr><td height=25></td></tr><tr>
     <td colspan=3 align="center" bgcolor="#000000"><font color="#ffffff">NATIONAL CHAMPIONS</font></td>
   </tr><tr>
-    <td colspan=3 align="center"><a id=\"g1\" href="javascript:void(0)\" onclick=\"pick(event,1)">$champ</a></td>
+    <td colspan=3 align="center"><a id="g1" href="javascript:void(0)" onclick="pick(event,1)">$champ</a></td>
   </tr>
   </table>
 <br><br><br><br>
 <center>
 Your bracket code:<br>
 <b><div id="code">$code</div></b>
+<p>Mail it to <a id="sendmail" href="#" onclick="submit_bracket('$tourney','$code'); return false">Patrick</a>
+
 <p>
-Mail it to <a id="sendmail" href="mailto:dukepiki\@gmail.com?subject=bracket%20code&body=$code">Patrick</a>
-<p>
-<a id="saveit" href="make-entry.cgi?t=$tourney&c=$code">Save</a> this page for later.
-</center>
-</td>);
+
+<a id="saveit" href="make-entry.cgi?t=$tourney&c=$code">Save</a> this page -
+<br />then bookmark it and finish it later</center></td>
+);
 }
 
 sub esc {
