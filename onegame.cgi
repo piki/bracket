@@ -5,7 +5,7 @@ use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: text/html\n\n";
 
-my $tourney = $q->param('t') || "2012m";
+my $tourney = $q->param('t') || "2013m";
 my $hide = $q->cookie('hidejunk');
 setup("$tourney/teams");
 my $gameno = $q->param('g');
