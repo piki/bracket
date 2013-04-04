@@ -278,3 +278,66 @@ sub find_acceptable_name{
     $name;
 }
 
+#Three arguments:
+# 0 - tourney (2013m)
+# 1 - name (will substitute _ for ' ')
+# 2 - code (0.0.0.0.0.0.0.0)
+sub write_bracket {
+    
+	my $brackets = $_[0].'/mhc-brackets';
+    my $name = $_[1];
+    my $code = $_[2];
+
+    $name =~ s/\s+/_/g;
+    $name = find_acceptable_name($brackets, $name);
+
+	open(BRACKETS, ">>$brackets") || die "$brackets: $!";
+
+    print BRACKETS $name.' '.$code."\n";
+    close(BRACKETS);
+}
+
+#Two Arguments:
+# 0 - bracket file relative path (2013m/mhc-brackets)
+# 1 - bracket submitter's name
+sub find_acceptable_name{
+	my $brackets = $_[0];
+    my $name = $_[1];
+	open(BRACKETS, "<$brackets") || die "$brackets: $!";
+   
+    my $counter = 0;
+    while(<BRACKETS>){
+        chomp;
+        if(/^$name(\_\d)*/){
+            $counter++;
+        }
+    }
+    close(BRACKETS);
+
+    if($counter > 0) {
+        $name .= '_'.$counter;
+    }
+    $name;
+}
+
+#look at cutoff time in 'deadline' file.
+#return T iff current time is < deadline
+#One Argument:
+#0 - tourney (2013m)
+sub before_deadline {
+    my $deadline = $_[0].'/deadline';
+
+	open(DEADLINE, "<$deadline") || die "$deadline: $!";
+    my $current = time; 
+    my $endtime = 0;
+
+    while(<DEADLINE>){
+        chomp;
+        if(/^[^\#]/){ #not a comment
+            $endtime = $_;              
+            last;
+        }
+    }
+    return 1 if($current < $endtime);
+    return;
+}
