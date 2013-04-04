@@ -10,6 +10,12 @@ $|=1;
 my $tourney = $q->param('t') || "2013m";
 my $code = $q->param('c') || "0.0.0.0.0.0.0.0";
 
+my $expired = 0;
+
+if(!before_deadline($tourney)){
+    $expired = 1;
+}
+
 $tourney =~ s/[^0-9mwn]+//g;
 
 @colors = ( "#e8e8e8", "#d4d4d4", "#c0c0c0", "#acacac", "#b0b0b0", "#00005f" );
@@ -47,18 +53,13 @@ function pick(evt,number) {
 	}
 }
 
-function submit_bracket(tourney, bracket){
-	var name = prompt ("Enter your name", "");
-	if (name != null && name != ""){
-		window.location = "save-entry.cgi?t=$tourney&c=$code&name=" + name;
-	}
-	else {
-		alert("Bracket not submitted");
-	}
-}
 </script>
 </head>
 <body>
+#;
+
+
+print qq#
 
 Welcome to the new bracket entry page!  If it doesn't work for you, send
 <a href="mailto:dukepiki\@gmail.com">me</a> an email and use <a
@@ -145,7 +146,7 @@ function update_code() {
 	}
 	var theCode = code.join(".");
 	document.getElementById("code").innerHTML = theCode;
-	document.getElementById("sendmail").onclick = "submit_bracket($tourney," + theCode +")";
+    document.getElementById("submitbrack").href = "save-entry.cgi?t=$tourney&c="+theCode;
 	document.getElementById("saveit").href = "make-entry.cgi?t=$tourney&c="+theCode;
 
 }
@@ -167,6 +168,14 @@ if ($bracket[1]) { print qq(
 <td align="center" colspan=4 align="right" bgcolor="$colors[5]"><b><font size="+1" color="#ffffff">$bracket[3]</b></td></tr>); }
 bracket(2, 4);
 print qq(</table>);
+
+if($expired){
+    print qq#
+        <center><h1 style="color:red">PAST SUBMISSION DEADLINE<br /> This bracket will not be
+        submitted</h1></center>
+    #;
+}
+
 print qq(</body></html>);
 
 sub bracket {
@@ -243,17 +252,23 @@ sub finalfour {
   </tr><tr><td height=25></td></tr><tr>
     <td colspan=3 align="center" bgcolor="#000000"><font color="#ffffff">NATIONAL CHAMPIONS</font></td>
   </tr><tr>
-    <td colspan=3 align="center"><a id="g1" href="javascript:void(0)" onclick="pick(event,1)">$champ</a></td>
+    <td colspan=3 align="center"><a id=\"g1\" href=\"javascript:void(0)\" onclick=\"pick(event,1)">$champ</a></td>
   </tr>
   </table>
 <br><br><br><br>
 <center>
 Your bracket code:<br>
 <b><div id="code">$code</div></b>
-<p>Mail it to <a id="sendmail" href="#" onclick="submit_bracket('$tourney','$code'); return false">Patrick</a>
+);
 
+if(!$expired){
+    print qq(
+        <p><a id=\"submitbrack\" href="save-entry.cgi?t=$tourney&c=$code">Submit Bracket</a>
+    );
+}
+
+print qq(
 <p>
-
 <a id="saveit" href="make-entry.cgi?t=$tourney&c=$code">Save</a> this page -
 <br />then bookmark it and finish it later</center></td>
 );

@@ -278,3 +278,24 @@ sub find_acceptable_name{
     $name;
 }
 
+#look at cutoff time in 'deadline' file.
+#return T iff current time is < deadline
+#One Argument:
+#0 - tourney (2013m)
+sub before_deadline {
+    my $deadline = $_[0].'/deadline';
+
+	open(DEADLINE, "<$deadline") || die "$deadline: $!";
+    my $current = time; 
+    my $endtime = 0;
+
+    while(<DEADLINE>){
+        chomp;
+        if(/^[^\#]/){ #not a comment
+            $endtime = $_;              
+            last;
+        }
+    }
+    return 1 if($current < $endtime);
+    return;
+}
