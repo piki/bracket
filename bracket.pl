@@ -284,7 +284,7 @@ sub find_acceptable_name{
 # 2 - code (0.0.0.0.0.0.0.0)
 sub write_bracket {
     
-	my $brackets = $_[0].'/mhc-brackets';
+	my $brackets = $_[0].'/cs-brackets';
     my $name = $_[1];
     my $code = $_[2];
 
@@ -298,7 +298,7 @@ sub write_bracket {
 }
 
 #Two Arguments:
-# 0 - bracket file relative path (2013m/mhc-brackets)
+# 0 - bracket file relative path (2013m/cs-brackets)
 # 1 - bracket submitter's name
 sub find_acceptable_name{
 	my $brackets = $_[0];
