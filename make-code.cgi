@@ -49,7 +49,7 @@ for ($i=63; $i>=1; $i--) {
 print "<br>\n";
 
 $code = join '.', @output;
-print qq#<hr><a href="save-entry.cgi?t=$tourney&code=$code">Submit</a> this bracket entry: <b>#;
+print qq#<hr><a href="save-entry.cgi?t=$tourney&c=$code">Submit</a> this bracket entry: <b>#;
 print "$code</b>\n";
 print "<br>\n";
 
