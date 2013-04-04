@@ -58,12 +58,6 @@ function pick(evt,number) {
 <body>
 #;
 
-if($expired){
-    print qq#
-        <center><h1 style="color:red">PAST SUBMISSION DEADLINE<br /> This bracket will not be
-        submitted</h1></center>
-    #;
-}
 
 print qq#
 
@@ -174,6 +168,14 @@ if ($bracket[1]) { print qq(
 <td align="center" colspan=4 align="right" bgcolor="$colors[5]"><b><font size="+1" color="#ffffff">$bracket[3]</b></td></tr>); }
 bracket(2, 4);
 print qq(</table>);
+
+if($expired){
+    print qq#
+        <center><h1 style="color:red">PAST SUBMISSION DEADLINE<br /> This bracket will not be
+        submitted</h1></center>
+    #;
+}
+
 print qq(</body></html>);
 
 sub bracket {
