@@ -49,7 +49,7 @@ for ($i=63; $i>=1; $i--) {
 print "<br>\n";
 
 $code = join '.', @output;
-print qq(<hr>Send this string to <a href="mailto:dukepiki\@gmail.com?subject=bracket&body=$code">Patrick</a>: <b>);
+print qq#<hr><a href="save-entry.cgi?t=$tourney&c=$code">Submit</a> this bracket entry: <b>#;
 print "$code</b>\n";
 print "<br>\n";
 
