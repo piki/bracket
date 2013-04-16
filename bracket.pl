@@ -270,7 +270,7 @@ sub find_acceptable_name{
     while(<BRACKETS>){
         chomp;
         ($bname, $code) = split /\s/;
-        if ($bname =~ /^$name(_\d{1,3})*$/){
+        if ($bname =~ /^$name(_\d{1,3})*$/i){
             $counter++;
         }
     }
