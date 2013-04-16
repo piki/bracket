@@ -251,9 +251,11 @@ sub write_bracket {
     $name =~ s/\s+/_/g;
     $name = find_acceptable_name($brackets, $name);
 
+    #write the $name $code to the file
 	open(BRACKETS, ">>$brackets") || die "$brackets: $!";
-
+    flock(BRACKETS, 2); #exclusive lock - there can be only one.
     print BRACKETS $name.' '.$code."\n";
+    close(BRACKETS); #release the exclusive lock
 }
 
 #Two Arguments:
@@ -264,15 +266,18 @@ sub find_acceptable_name{
     my $name = $_[1];
 	open(BRACKETS, "<$brackets") || die "$brackets: $!";
    
-    my $counter = 0;
+    my $counter = 1;
+    my $bname;
+    my $code;
     while(<BRACKETS>){
         chomp;
-        if(/^$name(\_\d)*/){
+        ($bname, $code) = split /\s/;
+        if ($bname =~ /^$name(_\d{1,3})*$/i){
             $counter++;
         }
     }
 
-    if($counter > 0) {
+    if($counter > 1) {
         $name .= '_'.$counter;
     }
     $name;
