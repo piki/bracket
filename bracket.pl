@@ -264,15 +264,18 @@ sub find_acceptable_name{
     my $name = $_[1];
 	open(BRACKETS, "<$brackets") || die "$brackets: $!";
    
-    my $counter = 0;
+    my $counter = 1;
+    my $bname;
+    my $code;
     while(<BRACKETS>){
         chomp;
-        if(/^$name(\_\d)*/){
+        ($bname, $code) = split /\s/;
+        if ($bname =~ /^$name(_\d{1,3})*$/){
             $counter++;
         }
     }
 
-    if($counter > 0) {
+    if($counter > 1) {
         $name .= '_'.$counter;
     }
     $name;
