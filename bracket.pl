@@ -251,9 +251,11 @@ sub write_bracket {
     $name =~ s/\s+/_/g;
     $name = find_acceptable_name($brackets, $name);
 
+    #write the $name $code to the file
 	open(BRACKETS, ">>$brackets") || die "$brackets: $!";
-
+    flock(BRACKETS, 2); #exclusive lock - there can be only one.
     print BRACKETS $name.' '.$code."\n";
+    close(BRACKETS); #release the exclusive lock
 }
 
 #Two Arguments:
