@@ -132,6 +132,20 @@ foreach my $t (sort { $streak{$b} <=> $streak{$a} || $avgwon{$b} <=> $avgwon{$a}
 }
 print "</table>\n";
 
+my %avg_mov;
+my %min_mov;
+print "<p><table rules=\"all\" border=1 cellpadding=3\n<tr>\n<th colspan=3>";
+print "Most dominant champions</th></tr><tr><th>Team</th><th>Average margin of victory</th><th>Minimum margin of victory</th></tr>\n";
+$count = 0;
+foreach my $mov (sort { $b <=> $a } keys %avg_mov) {
+	foreach my $team (@{$avg_mov{$mov}}) {
+		my ($tlink) = $team =~ /\((\d{4})\)/;
+		print qq(<tr><td><a href="standings.cgi?t=$tlink$tourney">$team</a></td><td>$mov</td><td>$min_mov{$team}</td></tr>\n);
+	}
+	last if ++$count == 20;
+}
+print "</table>\n";
+
 print "<p><table rules=\"all\" border=1 cellpadding=3\n<tr>\n<th colspan=17>";
 print "Odds of winning for all seed pairings</th></tr><tr><td></td>\n";
 foreach my $col (1..16) {
@@ -205,6 +219,11 @@ sub show_stats {
 		}
 	}
 
+	my $champ = (who_played(1, @actual))[0];
+	my $champ_movtotal;
+	my $champ_games_played;
+	my $champ_minmov = 1000;
+
 	foreach my $g (1..63) {
 		my $r = 6-int(log2($g));
 		next if !$actual[$g];
@@ -242,6 +261,12 @@ sub show_stats {
 		my $spread = $score_winner[$g] - $score_loser[$g];
 		my $name = "(".int($a).")$team{$a} - (".int($b).")$team{$b}, $score_winner[$g]-$score_loser[$g] ($tourney)";
 
+		if ($a == $champ) {
+			$champ_games_played++;
+			$champ_movtotal += $spread;
+			if ($spread < $champ_minmov) { $champ_minmov = $spread; }
+		}
+
 		if ($spread == $r_closest[$r]) {
 			push @{$r_closest_t[$r]}, $name;
 		}
@@ -265,6 +290,15 @@ sub show_stats {
 			$most_overtimes = $overtimes[$g];
 			@most_overtimes_t = ( $name );
 		}
+	}
+
+	print "<!-- champ=$champ $team{$champ} movtotal=$champ_movtotal gp=$champ_games_played -->\n";
+	if ($champ_games_played) {
+		my $avg = sprintf "%.2f", $champ_movtotal/$champ_games_played;
+		my $tname = "$champ $team{$champ} ($tyear)";
+		$avg =~ s/\.0*$//;
+		push @{$avg_mov{$avg}}, $tname;
+		$min_mov{$tname} = $champ_minmov;
 	}
 }
 
