@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 
 # global statistics
-#   $most_overtimes
+#   $most_overtimes  -- count of most overtimes in a game
+#   @most_overtimes_t -- strings describing all games with $most_overtimes overtimes
 #   $closest[0..7]   -- closest 1/16, 8/9, 5/12, 6/11, etc.
 #   $furthest[0..7]  -- biggest spread 1/16, 8/9, etc.
 #   $total[0..7]/$count[0..7] -- average spread 1/16, 8/9, etc.
@@ -10,7 +11,9 @@
 #   $most_won[1..16] -- most rounds won by an X seed
 #   $fewest_won[1..16] -- fewest rounds won by an X seed
 #   $survived{"$round.$seed"} -- number of $seed teams remaining after $round
-#   $winning_count[$a][$b] -- number of times an $a has beaten a $b, any round
+#   $winning_count[$a][$b] -- number of times an $a seed has beaten a $b seed, any round
+#   $total_games
+#   $games_alphabetical
 
 require 'bracket.pl';
 
@@ -30,6 +33,10 @@ print "<html>\n<head>\n<title>Bracket statistics</title>\n";
 print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/_bracket.css\">\n";
 print "<style type=\"text/css\">\nth {color:#000000;background:#cccccc}\n</style>\n";
 print "</head>\n<body>\n";
+
+print "<b>Total completed games</b>: $total_games<br>\n";
+printf "<b>Total upsets</b>: $total_upsets (%.2f%%)<br>\n", ($total_upsets*100.0/$total_games);
+printf "<b>Total wins by alphabetically superior school</b>: $games_alphabetical (%.2f%%)<br>\n", ($games_alphabetical*100.0/$total_games);
 
 print "<table rules=\"all\" border=1 cellpadding=3>\n<tr>\n<th colspan=6>";
 print "Smallest and largest margins of victory, first round</th></tr>\n";
@@ -114,15 +121,17 @@ foreach my $t (keys %seeding) {
 	my $sum = 0;
 	my $totalwon = 0;
 	while (exists $seeding{$t}{$y}) {
-		$sum += $seeding{$t}{$y};
-		$totalwon += $gameswon{$t}{$y};
+		$sum += $seeding{$t}{$y} if $y < $year;
+		$totalwon += $gameswon{$t}{$y} if $y < $year;
 print "<!-- gameswon{$t}{$y} = $gameswon{$t}{$y} -->\n";
 		$y--;
 	}
 	if ($year > $y) {
 		$streak{$t} = $year - $y;
-		$avgseed{$t} = $sum / ($year - $y);
-		$avgwon{$t} = $totalwon / ($year - $y);
+		if ($year > $y + 1) {
+			$avgseed{$t} = $sum / ($year - $y - 1);
+			$avgwon{$t} = $totalwon / ($year - $y - 1);
+		}
 	}
 }
 my $count = 0;
@@ -177,6 +186,7 @@ print "</table>\n";
 
 sub show_stats {
 	my $tourney = $_[0];
+	print "<!-- $tourney -->\n";
 	my ($tyear) = $tourney =~ /^(\d+)/;
 	setup("$tourney/teams");
 	my @refs = read_winners("$tourney/actual");
@@ -230,10 +240,15 @@ sub show_stats {
 		my ($a, $b) = who_played($g, @actual);
 		$survived{"$r.".int($a)}++;
 
-		if ($actual[$g] eq $a) { $gameswon{$team{$a}}{$tyear}++; }
-		elsif ($actual[$g] eq $b) { $gameswon{$team{$b}}{$tyear}++; }
+		die unless $actual[$g] eq $a;
+		$gameswon{$team{$a}}{$tyear}++;
 
 		next if !defined $team{$a} || !defined $team{$b};  # Bye
+
+		print "<!-- $game: ($a) $team{$a} defeats ($b) $team{$b} -->\n";
+		$total_games++;
+		$games_alphabetical++ if $team{$a} lt $team{$b};
+		$total_upsets++ if int($a) > int($b);
 
 		if ($actual[$g]) {
 			$winning_count[int($a)][int($b)]++;
