@@ -8,7 +8,7 @@ $q = new CGI;
                                                                                                                                            
 print "Content-type: text/html\n\n";
                                                                                                                                            
-my $tourney = $q->param('t') || "2014m";
+my $tourney = $q->param('t') || "2015m";
 my $hide = $q->cookie('hidejunk');
 setup("$tourney/teams");
 my @actual = @{(read_winners("$tourney/actual"))[0]};

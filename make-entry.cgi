@@ -8,7 +8,7 @@ print "Content-type: text/html\n\n";
 print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/_bracket.css\">\n";
 $|=1;
 
-my $tourney = $q->param('t') || "2014m";
+my $tourney = $q->param('t') || "2015m";
 my $code = $q->param('c') || "0.0.0.0.0.0.0.0";
 $tourney =~ s/[^0-9mwn]+//g;
 

@@ -8,7 +8,7 @@ $q = new CGI;
 
 print "Content-type: text/html\n\n";
 
-my $tourney = $q->param('t') || "2014m";
+my $tourney = $q->param('t') || "2015m";
 setup("$tourney/teams");
 my @schedule = read_schedule("$tourney/schedule");
 my @ret = read_winners("$tourney/actual");
