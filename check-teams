@@ -15,9 +15,15 @@ foreach my $fn (<*/teams>) {
 	while (<INP>) {
 		chomp;
 		if (/^(team\s+\d+\.\d+\s+)(.*)/) {
-			if (!exists $ok{$2}) {
-				print "$fn:$.: $2\n";
-				$err++;
+			@teams = split(/\//, $2);
+			foreach my $t (@teams) {
+				if (!exists $ok{$t}) {
+					print "$fn:$.: $t\n";
+					$err++;
+				}
+			}
+			if (scalar @teams != 1) {
+				print "$fn:$.: " . (scalar @teams) . " teams (all ok)\n";
 			}
 		}
 	}
