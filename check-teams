@@ -9,6 +9,33 @@ while (<INP>) { chomp; $ok{$_} = 1; }
 open(INP, "<teams-espn-map");
 while (<INP>) { chomp; /(.*) => (.*)/; delete $ok{$1}; $ok{$2} = 1; }
 
+sub initial_caps {
+	my $str = shift;
+	$str =~ s/[^A-Z]//g;
+	$str;
+}
+
+sub caps_one_lower {
+	my $str = shift;
+	$str =~ s/([a-z])[a-z]*/\1/g;
+	$str =~ s/[^A-Za-z]//g;
+	$str;
+}
+
+sub uniq {
+	my %seen;
+	my @ret;
+	foreach (@_) {
+		if (!$seen{$_}++) { push @ret, $_; }
+	}
+	@ret;
+}
+
+foreach my $t (keys %ok) {
+	push @{$subst{initial_caps($t)}}, $t;
+	push @{$subst{caps_one_lower($t)}}, $t;
+}
+
 foreach my $fn (<*/teams>) {
 	open(INP, "<$fn");
 	$. = 0;
@@ -20,6 +47,12 @@ foreach my $fn (<*/teams>) {
 				if (!exists $ok{$t}) {
 					print "$fn:$.: $t\n";
 					$err++;
+					my @choices = @{$subst{caps_one_lower($t)}};
+					push @choices, @{$subst{initial_caps($t)}};
+					if (scalar @choices) {
+						print "  Try these:\n";
+						print "  " . join(', ', uniq @choices) . "\n";
+					}
 				}
 			}
 			if (scalar @teams != 1) {
