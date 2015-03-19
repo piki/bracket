@@ -1,5 +1,5 @@
 team 1.1  Kentucky
-team 16.1 Hampton/Manhattan
+team 16.1 Hampton
 team 8.1  Cincinnati
 team 9.1  Purdue
 team 5.1  West Virginia
@@ -17,13 +17,13 @@ team 15.1 New Mexico
 team 1.2  Wisconsin
 team 16.2 Coastal Car.
 team 8.2  Oregon
-team 9.2  Oklahoma
+team 9.2  Oklahoma State
 team 5.2  Arkansas
 team 12.2 Wofford
 team 4.2  UNC
 team 13.2 Harvard
 team 6.2  Xavier
-team 11.2 Brigham Young/Mississippi
+team 11.2 Mississippi
 team 3.2  Baylor
 team 14.2 Georgia State
 team 7.2  VCU
@@ -39,7 +39,7 @@ team 12.3 Wyoming
 team 4.3  Louisville
 team 13.3 UC Irvine
 team 6.3  Providence
-team 11.3 Boise State/Dayton
+team 11.3 Dayton
 team 3.3  Oklahoma
 team 14.3 Albany
 team 7.3  Michigan State
@@ -47,7 +47,7 @@ team 10.3 Georgia
 team 2.3  Virginia
 team 15.3 Belmont
 team 1.4  Duke
-team 16.4 North Florida/Robert Morris
+team 16.4 Robert Morris
 team 8.4  San Diego State
 team 9.4  St. John's
 team 5.4  Utah
