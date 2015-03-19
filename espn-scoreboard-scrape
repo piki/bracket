@@ -28,7 +28,10 @@ while (<ACTUAL>) {
 
 # team short-name mappings
 open(INP, "<teams-espn-map");
-while (<INP>) { /(.*) => (.*)/; $rename{$1} = $2; }
+while (<INP>) {
+	/(.*) => (.*)/ || next;
+	$rename{$1} = $2;
+}
 
 # create %lookup array to map "$team1$team2" => game number
 foreach my $g (1..31) {
