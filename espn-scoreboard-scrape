@@ -96,7 +96,7 @@ while (<WGET>) {
 		$state{$g}{clock} = $1;
 		#print STDERR "clock=\"$state{$g}{clock}\"\n";
 	}
-	elsif (m!statusLine1">([^<]*)<!) {
+	elsif (m!statusLine1">(?:&nbsp;|\s)*([^<]*)<!) {
 		$state{$g}{clock} = $1;
 		#print STDERR "clock=\"$state{$g}{clock}\"\n";
 	}
