@@ -165,7 +165,7 @@ sub do_snapshot_command {
 }
 
 sub show_and_set_out {
-	foreach $g (sort keys %state) {
+	foreach $g (sort { timeleft($state{$a}{clock}) <=> timeleft($state{$b}{clock}) } keys %state) {
 		next if !defined $state{$g}{home_score} && !defined $state{$g}{away_score};
 		my ($ot) = $state{$g}{clock} =~ /^Final - (\d*)\w*\s*OT/;
 		$ot = defined $ot ? " ${ot}OT" : "";
@@ -182,6 +182,16 @@ sub show_and_set_out {
 			$gstring, "[$state{$g}{clock}]", "($reverse{$state{$g}{home}}) $state{$g}{home} - $state{$g}{home_score}",
 			"($reverse{$state{$g}{away}}) $state{$g}{away} - $state{$g}{away_score}";
 	}
+}
+
+sub timeleft {
+	if ($_[0] eq "Final") { return 0; }
+	if ($_[0] eq "Halftime") { return 20*60; }
+	if ($_[0] =~ /(\d+):(\d+) 1st/) { return $1*60 + $2 + 20*60; }
+	if ($_[0] =~ /(\d+):(\d+) 2nd/) { return $1*60 + $2; }
+	if ($_[0] =~ /(\d+):(\d+) PM/) { return $1*3600 + $2*60 + 40*60; }
+	print STDERR "timeleft?? \"$_[0]\"\n";
+	return 0;
 }
 
 sub get_snapshot {
