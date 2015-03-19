@@ -116,7 +116,7 @@ get_snapshot();
 show_and_set_out();
 
 open(ACTUAL, ">$tourney/actual.new");
-foreach (sort {$b cmp $a} keys %out) {
+foreach (sort {$b <=> $a} keys %out) {
 	print ACTUAL "$out{$_}\n";
 }
 rename("$tourney/actual.new", "$tourney/actual");
