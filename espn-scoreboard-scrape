@@ -185,7 +185,7 @@ sub show_and_set_out {
 }
 
 sub timeleft {
-	if ($_[0] eq "Final") { return 0; }
+	if ($_[0] =~ /^Final\b/) { return 0; }
 	if ($_[0] eq "Halftime") { return 20*60; }
 	if ($_[0] =~ /(\d+):(\d+) 1st/) { return $1*60 + $2 + 20*60; }
 	if ($_[0] =~ /(\d+):(\d+) 2nd/) { return $1*60 + $2; }
