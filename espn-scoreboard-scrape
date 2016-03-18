@@ -4,10 +4,10 @@
 
 # args
 if ($ARGV[0] && $ARGV[0] =~ /^\d{4}[mnwc]$/) {
-	$tourney = $ARGV[0] || "2015m";
+	$tourney = $ARGV[0] || "2016m";
 	shift;
 }
-else { $tourney = "2015m"; }
+else { $tourney = "2016m"; }
 if ($ARGV[0] && $ARGV[0] =~ /^(\d{8})$/) { $date = $1; }
 
 # common setup
@@ -49,12 +49,12 @@ foreach my $g (32..63) {
 
 # scrape an ESPN scoreboard page
 my ($sport, $confId);
-if ($tourney =~ /m$/) { $sport = "ncb"; $confId = 100; }
-elsif ($tourney =~ /n$/) { $sport = "ncb"; $confId = 50; }
-elsif ($tourney =~ /c$/) { $sport = "ncb"; $confId = 55; }
+if ($tourney =~ /m$/) { $sport = "collegebasketball"; $confId = "ncaa-tournament"; }
+elsif ($tourney =~ /n$/) { $sport = "collegebasketball"; $confId = "nit"; }
+elsif ($tourney =~ /c$/) { $sport = "collegebasketball"; $confId = "cit"; }
 elsif ($tourney =~ /w$/) { $sport = "ncw"; $confId = 100; }
-my $url = "http://sports.espn.go.com/$sport/scoreboard?confId=$confId";
-if ($date) { $url .= "&date=$date"; }
+my $url = "http://www.cbssports.com/$sport/scoreboard/$confId";
+if ($date) { $url .= "/$date"; }
 print STDERR "$url\n";
 if ($canned) {
 	open(WGET, "<scoreboard.html");
@@ -63,48 +63,42 @@ else {
 	open(WGET, "wget -qO - \"$url\"|") || die "wget: $!";
 	open(SCOREBOARD, ">scoreboard.html");
 }
-$/ = "</div></div></div><div";
 while (<WGET>) {
-	my $current_game;
 	my $g;
 	print SCOREBOARD if !$canned;
-	if (m!var\s+snapshotId\s+=\s+(\d+)!) {
-		$snapshotId = $1;
-	}
-	if (m!aTeamName"><a title="([^"]+)" href="http://espn.go.com/mens-college-basketball/team/_/id/\d+/!) {
+	if (m!awayTeam".*?teamLocation"><a href=.*?>([^>]+)</a>!) {
 		$away = $1;
 		$away = $rename{$away} || $away;
 		#print STDERR "away=\"$away\"\n";
 	}
-	if (m!hTeamName"><a title="([^"]+)" href="http://espn.go.com/mens-college-basketball/team/_/id/\d+/!) {
+	if (m!homeTeam".*?teamLocation"><a href=.*?>([^>]+)</a>!) {
 		$home = $1;
 		$home = $rename{$home} || $home;
 		#print STDERR "home=\"$home\"\n";
 	}
-	if (m!(\d+)-gameHeader!) {
-		$current_game = $1;
+	if (m!gameInfo!) {
 		$g = $lookup{$home.$away};
 		if (!$g) {
 			print STDERR "Can't find game number for \"$home\" vs. \"$away\"\n";
 			next;
 		}
-		$espn_to_gameno{$current_game} = $g;
+		#print STDERR "g=$g\n";
 		$state{$g}{away} = $away;
 		$state{$g}{home} = $home;
 	}
-	if (/-statusLine1">(Final[^<]*)/) {
+	if (/><td class="finalStatus"[^>]*>(Final.*?)</) {
 		$state{$g}{clock} = $1;
 		#print STDERR "clock=\"$state{$g}{clock}\"\n";
 	}
-	elsif (m!statusLine1">(?:&nbsp;|\s)*([^<]*)<!) {
+	elsif (m!><td class="gameStatus"[^>]*>(.*?)<!) {
 		$state{$g}{clock} = $1;
 		#print STDERR "clock=\"$state{$g}{clock}\"\n";
 	}
-	elsif (/class="time-remaining" style="display: inline">([0-9:]*)/) {
+	elsif (m!"gameDate">.*?>(\d+:\d+ .M.*?)<!) {
 		$state{$g}{clock} = $1;
 		#print STDERR "clock=\"$state{$g}{clock}\"\n";
 	}
-	if (/-awayHeaderScore">(\d+)<.*-homeHeaderScore">(\d+)</) {
+	if (/awayTeam.*"finalScore">(\d+)<.*homeTeam.*"finalScore">(\d+)</) {
 		$state{$g}{away_score} = $1;
 		$state{$g}{home_score} = $2;
 		#print STDERR "score=\"$state{$g}{away_score}\" to \"$state{$g}{home_score}\"\n";
@@ -112,7 +106,6 @@ while (<WGET>) {
 }
 
 #show_and_set_out();
-get_snapshot();
 show_and_set_out();
 
 open(ACTUAL, ">$tourney/actual.new");
@@ -122,47 +115,6 @@ foreach (sort {$b <=> $a} keys %out) {
 rename("$tourney/actual.new", "$tourney/actual");
 
 my %warned_not_found;
-sub do_snapshot_command {
-	my $gameno = $espn_to_gameno{$_[0]};
-	my $str = $_[1];
-	$str =~ tr/\r/\n/;
-	#print STDERR "<COMMAND> [$gameno/$_[0]] $str\n";
-	if (!$gameno) {
-		print STDERR "Game \"$_[0]\" not found???\n" if !$warned_not_found{$_[0]}++;
-		return;
-	}
-	if ($str =~ /^01(\w+)/) {      # home outcome (loser, winner)
-		#print STDERR "[$gameno] Home team is: \"$1\"\n";
-	}
-	if ($str =~ /^02(\w+)/) {      # away outcome (loser, winner)
-		#print STDERR "[$gameno] Away team is: \"$1\"\n";
-	}
-	if ($str =~ /^03(\d+)/) {      # away score
-		#print STDERR "[$gameno] Away score is: \"$1\"\n";
-		$state{$gameno}{away_score} = $1;
-	}
-	if ($str =~ /^04(\d+)/) {      # home score
-		#print STDERR "[$gameno] Home score is: \"$1\"\n";
-		$state{$gameno}{home_score} = $1;
-	}
-	if ($str =~ /^05(.nbsp;\s*)?(.+)/) {      # time label (Final)
-		#print STDERR "[$gameno] Time is: \"$2\"\n";
-		$state{$gameno}{clock} = $2;
-	}
-	if ($str =~ /^06(\w+)/) {      # period label (1st, 2nd, Halftime)
-		#print STDERR "[$gameno] Period is: \"$1\"\n";
-		my @tok = split/\s+/, $state{$gameno}{clock};
-		$state{$gameno}{clock} = "$1 $tok[1]";
-	}
-	if ($str =~ /^07([0-9:]+)/) {  # time remaining (0:01, or &nbsp;)
-		#print STDERR "[$gameno] Time remaining: \"$1\"\n";
-		my @tok = split/\s+/, $state{$gameno}{clock};
-		$state{$gameno}{clock} = "$tok[0] $1";
-	}
-	if ($str =~ /^1c(.*)/) {       # status message, terminated by \n or \r
-		#print STDERR "[$gameno] Status: \"$1\"\n";
-	}
-}
 
 sub show_and_set_out {
 	foreach $g (sort { timeleft($state{$a}{clock}) <=> timeleft($state{$b}{clock}) } keys %state) {
@@ -186,45 +138,10 @@ sub show_and_set_out {
 
 sub timeleft {
 	if ($_[0] =~ /^Final\b/) { return 0; }
-	if ($_[0] eq "Halftime") { return 20*60; }
+	if ($_[0] eq "Halftime" || $_[0] eq "End of 1st Half") { return 20*60; }
 	if ($_[0] =~ /(\d+):(\d+) 1st/) { return $1*60 + $2 + 20*60; }
 	if ($_[0] =~ /(\d+):(\d+) 2nd/) { return $1*60 + $2; }
 	if ($_[0] =~ /(\d+):(\d+) PM/) { return $1*3600 + $2*60 + 40*60; }
 	print STDERR "timeleft?? \"$_[0]\"\n";
 	return 0;
-}
-
-sub get_snapshot {
-	if ($sport eq "ncb" && $snapshotId) {
-		$/ = "\n";
-		if ($canned) {
-			open(WGET, "<snapshot.xml");
-		}
-		else {
-			print STDERR "Getting snapshot $snapshotId\n";
-			$url = "http://scores.espn.go.com/ncb/caster/snapshot?sessionId=ncbScoreboard09&masterSnap=$snapshotId&casterSnap=$snapshotId&rand=1300392054758";
-			open(WGET, "wget -qO - \"$url\"|") || die "wget: $!";
-			open(SNAPSHOT, ">snapshot.xml");
-		}
-		while (<WGET>) {
-			print SNAPSHOT if !$canned;
-			chomp;
-			foreach my $line (split/\r/, $_) {
-				if ($line =~ m!\]\]!) { undef $snapshot_game; }
-				if ($line =~ m/<Snapshot snapshotId="\d+"><!\[CDATA\[(\d+)\s+(.*)/) {
-					$snapshot_game = $1;
-					do_snapshot_command($snapshot_game, $2);
-				}
-				elsif ($snapshot_game) {
-					if ($line =~ m!^(\d{9})\s+(.*)!) {
-						$snapshot_game = $1;
-						do_snapshot_command($snapshot_game, $2);
-					}
-					else {
-						do_snapshot_command($snapshot_game, $line);
-					}
-				}
-			}
-		}
-	}
 }
