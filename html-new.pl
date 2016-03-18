@@ -8,7 +8,7 @@
 
 require 'bracket.pl';
 
-my $tourney = $ARGV[0] || "2015m";
+my $tourney = $ARGV[0] || "2016m";
 my $title = make_title($tourney);
 setup("$tourney/teams");
 if ($ARGV[1] eq "actual") {

@@ -8,7 +8,7 @@ $q = new CGI;
 
 print "Content-type: text/html\n";
 
-my $tourney = $q->param('t') || "2015m";
+my $tourney = $q->param('t') || "2016m";
 my $sort = $q->param('sort') || "n";
 if (defined $q->param('hidejunk')) {
 	$hide = $q->param('hidejunk');
