@@ -141,6 +141,7 @@ sub timeleft {
 	if ($_[0] eq "Halftime" || $_[0] eq "End of 1st Half") { return 20*60; }
 	if ($_[0] =~ /(\d+):(\d+) 1st/) { return $1*60 + $2 + 20*60; }
 	if ($_[0] =~ /(\d+):(\d+) 2nd/) { return $1*60 + $2; }
+	if ($_[0] =~ /(\d+).\d+ 2nd/)   { return $1; }
 	if ($_[0] =~ /(\d+):(\d+) PM/) { return $1*3600 + $2*60 + 40*60; }
 	print STDERR "timeleft?? \"$_[0]\"\n";
 	return 0;
