@@ -119,7 +119,7 @@ my %warned_not_found;
 sub show_and_set_out {
 	foreach $g (sort { timeleft($state{$a}{clock}) <=> timeleft($state{$b}{clock}) } keys %state) {
 		next if !defined $state{$g}{home_score} && !defined $state{$g}{away_score};
-		my ($ot) = $state{$g}{clock} =~ /^Final - (\d*)\w*\s*OT/;
+		my ($ot) = $state{$g}{clock} =~ /^Final (\d*)\w*\s*OT/i;
 		$ot = defined $ot ? " ${ot}OT" : "";
 		my $gstring;
 		if ($state{$g}{home_score} > $state{$g}{away_score}) {
