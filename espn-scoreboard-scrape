@@ -67,12 +67,12 @@ while (<WGET>) {
 	my $g;
 	print SCOREBOARD if !$canned;
 	if (m!awayTeam".*?teamLocation"><a href=.*?>([^>]+)</a>!) {
-		$away = $1;
+		$away = decode($1);
 		$away = $rename{$away} || $away;
 		#print STDERR "away=\"$away\"\n";
 	}
 	if (m!homeTeam".*?teamLocation"><a href=.*?>([^>]+)</a>!) {
-		$home = $1;
+		$home = decode($1);
 		$home = $rename{$home} || $home;
 		#print STDERR "home=\"$home\"\n";
 	}
@@ -145,4 +145,10 @@ sub timeleft {
 	if ($_[0] =~ /(\d+):(\d+) PM/) { return $1*3600 + $2*60 + 40*60; }
 	print STDERR "timeleft?? \"$_[0]\"\n";
 	return 0;
+}
+
+sub decode {
+	$ret = $_[0];
+	$ret =~ s/&#(\d+);/chr($1)/ge;
+	$ret;
 }
