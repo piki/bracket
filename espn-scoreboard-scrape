@@ -1,13 +1,14 @@
 #!/usr/bin/perl -w
 
 #$canned = 1;
+#$DEBUG = 1;
 
 # args
 if ($ARGV[0] && $ARGV[0] =~ /^\d{4}[mnwc]$/) {
-	$tourney = $ARGV[0] || "2017m";
+	$tourney = $ARGV[0] || "2018m";
 	shift;
 }
-else { $tourney = "2017m"; }
+else { $tourney = "2018m"; }
 if ($ARGV[0] && $ARGV[0] =~ /^(\d{8})$/) { $date = $1; }
 
 # common setup
@@ -49,9 +50,9 @@ foreach my $g (32..63) {
 
 # scrape an ESPN scoreboard page
 my ($sport, $confId);
-if ($tourney =~ /m$/) { $sport = "collegebasketball"; $confId = "ncaa-tournament"; }
-elsif ($tourney =~ /n$/) { $sport = "collegebasketball"; $confId = "nit"; }
-elsif ($tourney =~ /c$/) { $sport = "collegebasketball"; $confId = "cit"; }
+if ($tourney =~ /m$/) { $sport = "college-basketball"; $confId = "ncaa-tournament"; }
+elsif ($tourney =~ /n$/) { $sport = "college-basketball"; $confId = "nit"; }
+elsif ($tourney =~ /c$/) { $sport = "college-basketball"; $confId = "cit"; }
 elsif ($tourney =~ /w$/) { $sport = "ncw"; $confId = 100; }
 my $url = "http://www.cbssports.com/$sport/scoreboard/$confId";
 if ($date) { $url .= "/$date"; }
@@ -63,45 +64,55 @@ else {
 	open(WGET, "wget -qO - \"$url\"|") || die "wget: $!";
 	open(SCOREBOARD, ">scoreboard.html");
 }
+my $ingame = 0;
+my $away = "";
+my $home = "";
+my $clock = "";
 while (<WGET>) {
 	my $g;
 	print SCOREBOARD if !$canned;
-	if (m!awayTeam".*?teamLocation"><a href=.*?>([^>]+)</a>!) {
+	if (m!<div id=.*class=.*postgame.*>!) {
+		$ingame = 1;
+		print STDERR "$.: INGAME := $ingame\n" if $DEBUG;
+	}
+	elsif (m!(FINAL\S*)!) {
+		$clock = $1;
+	}
+	elsif ($ingame && !$away && m!class="team">(.*)</a>!) {
 		$away = decode($1);
 		$away = $rename{$away} || $away;
-		#print STDERR "away=\"$away\"\n";
+		print STDERR "$.: AWAY := $away\n" if $DEBUG;
 	}
-	if (m!homeTeam".*?teamLocation"><a href=.*?>([^>]+)</a>!) {
+	elsif ($ingame && $away && !$home && m!<td>(\d+)</td>!) {
+		$away_score = $1;
+		print STDERR "$.: AWAY_SCORE := $away_score\n" if $DEBUG;
+	}
+	elsif ($ingame && $away && !$home && m!class="team">(.*)</a>!) {
 		$home = decode($1);
 		$home = $rename{$home} || $home;
-		#print STDERR "home=\"$home\"\n";
+		print STDERR "$.: HOME := $home\n" if $DEBUG;
 	}
-	if (m!gameInfo!) {
+	elsif ($ingame && $away && $home && m!<td>(\d+)</td>!) {
+		$home_score = $1;
+		print STDERR "$.: HOME_SCORE := $home_score\n" if $DEBUG;
+	}
+	elsif ($ingame && $away && $home && m!</tr></tbody></table></div>!) {
 		$g = $lookup{$home.$away};
 		if (!$g) {
 			print STDERR "Can't find game number for \"$home\" vs. \"$away\"\n";
-			next;
 		}
-		#print STDERR "g=$g\n";
-		$state{$g}{away} = $away;
-		$state{$g}{home} = $home;
-	}
-	if (/><td class="finalStatus"[^>]*>(Final.*?)</) {
-		$state{$g}{clock} = $1;
-		#print STDERR "clock=\"$state{$g}{clock}\"\n";
-	}
-	elsif (m!><td class="gameStatus"[^>]*>(.*?)<!) {
-		$state{$g}{clock} = $1;
-		#print STDERR "clock=\"$state{$g}{clock}\"\n";
-	}
-	elsif (m!"gameDate">.*?>(\d+:\d+ .M.*?)<!) {
-		$state{$g}{clock} = $1;
-		#print STDERR "clock=\"$state{$g}{clock}\"\n";
-	}
-	if (/awayTeam.*"finalScore">(\d+)<.*homeTeam.*"finalScore">(\d+)</) {
-		$state{$g}{away_score} = $1;
-		$state{$g}{home_score} = $2;
-		#print STDERR "score=\"$state{$g}{away_score}\" to \"$state{$g}{home_score}\"\n";
+		else {
+			#print STDERR "g=$g\n";
+			$state{$g}{away} = $away;
+			$state{$g}{home} = $home;
+			$state{$g}{away_score} = $away_score;
+			$state{$g}{home_score} = $home_score;
+			$state{$g}{clock} = $clock;
+			print STDERR "score=\"$state{$g}{away_score}\" to \"$state{$g}{home_score}\"\n" if $DEBUG;
+		}
+		$home = $away = $clock = "";
+		$ingame = 0;
+		print STDERR "$.: INGAME := $ingame\n" if $DEBUG;
 	}
 }
 
@@ -119,16 +130,16 @@ my %warned_not_found;
 sub show_and_set_out {
 	foreach $g (sort { timeleft($state{$a}{clock}) <=> timeleft($state{$b}{clock}) } keys %state) {
 		next if !defined $state{$g}{home_score} && !defined $state{$g}{away_score};
-		my ($ot) = $state{$g}{clock} =~ /^Final (\d*)\w*\s*OT/i;
+		my ($ot) = $state{$g}{clock} =~ m!^FINAL/(\d*)\w*\s*OT!i;
 		$ot = defined $ot ? " ${ot}OT" : "";
 		my $gstring;
 		if ($state{$g}{home_score} > $state{$g}{away_score}) {
 			$gstring = "$g $reverse{$state{$g}{home}} $state{$g}{home_score}-$state{$g}{away_score}$ot";
-			$out{$g} = $gstring if $state{$g}{clock} =~ /^Final/;
+			$out{$g} = $gstring if $state{$g}{clock} =~ /^Final/i;
 		}
 		else {
 			$gstring = "$g $reverse{$state{$g}{away}} $state{$g}{away_score}-$state{$g}{home_score}$ot";
-			$out{$g} = $gstring if $state{$g}{clock} =~ /^Final/;
+			$out{$g} = $gstring if $state{$g}{clock} =~ /^Final/i;
 		}
 		printf STDERR "%-20s # %16s  %-27s    %s\n",
 			$gstring, "[$state{$g}{clock}]", "($reverse{$state{$g}{home}}) $state{$g}{home} - $state{$g}{home_score}",
@@ -137,7 +148,7 @@ sub show_and_set_out {
 }
 
 sub timeleft {
-	if ($_[0] =~ /^Final\b/) { return 0; }
+	if ($_[0] =~ /^Final\b/i) { return 0; }
 	if ($_[0] eq "Halftime" || $_[0] eq "End of 1st Half") { return 20*60; }
 	if ($_[0] =~ /(\d+):(\d+) 1st/) { return $1*60 + $2 + 20*60; }
 	if ($_[0] =~ /(\d+):(\d+) 2nd/) { return $1*60 + $2; }
@@ -150,5 +161,6 @@ sub timeleft {
 sub decode {
 	$ret = $_[0];
 	$ret =~ s/&#(\d+);/chr($1)/ge;
+	$ret =~ s/&amp;/&/g;
 	$ret;
 }
