@@ -53,12 +53,26 @@ print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/_bracket.css\">\n";
 print "<style type=\"text/css\">\nth {color:#000000;background:#cccccc}\n</style>\n";
 print "</head>\n<body>\n";
 
+print qq(
+Quick links:<br><ul>
+<li> <a href="#margins-first">Smallest and largest margins of victory, first round</a>
+<li> <a href="#margins-all">Smallest and largest margins of victory, by round</a>
+<li> <a href="#victories-by-seed">Most and fewest victories, by seed</a>
+<li> <a href="#overtimes">Most overtimes</a>
+<li> <a href="#survival">Teams still alive after each round, by seed</a>
+<li> <a href="#streaks">Longest active tournament streaks</a>
+<li> <a href="#champions">Most dominant champions</a>
+<li> <a href="#pairings">Odds of winning for all seed pairings</a>
+<li> <a href="#achievers">Under/overachievers</a>
+</ul>
+);
+
 print "<b>Total completed games</b>: $total_games<br>\n";
 printf "<b>Total upsets</b>: $total_upsets (%.2f%%)<br>\n", ($total_upsets*100.0/$total_games);
 printf "<b>Total wins by alphabetically superior school</b>: $games_alphabetical (%.2f%%)<br>\n", ($games_alphabetical*100.0/$total_games);
 
 print "<table rules=\"all\" border=1 cellpadding=3>\n<tr>\n<th colspan=6>";
-print "Smallest and largest margins of victory, first round</th></tr>\n";
+print "<a name=\"margins-first\">Smallest and largest margins of victory, first round</a></th></tr>\n";
 print "<tr>\n";
 print "<th rowspan=2>Pairing</th><th colspan=2>Smallest</th>";
 print "<th colspan=2>Largest</th><th rowspan=2>Average</th></tr>\n";
@@ -75,7 +89,7 @@ foreach my $i (0..7) {
 print "</table>\n";
 
 print "<p><table rules=\"all\" border=1 cellpadding=3>\n<tr>\n<th colspan=5>";
-print "Smallest and largest margins of victory, by round</th></tr>\n";
+print "<a name=\"margins-all\">Smallest and largest margins of victory, by round</a></th></tr>\n";
 print "<tr>\n";
 print "<th rowspan=2>Round</th><th colspan=2>Smallest</th>";
 print "<th colspan=2>Largest</th></tr>\n";
@@ -88,7 +102,7 @@ foreach my $r (1..6) {
 print "</table>\n";
 
 print "<p><table rules=\"all\" border=1 cellpadding=3>\n<tr>\n<th colspan=5>";
-print "Most and fewest victories, by seed</th></tr>\n";
+print "<a name=\"victories-by-seed\">Most and fewest victories, by seed</a></th></tr>\n";
 print "<tr>\n";
 print "<th rowspan=2>Seed</th><th colspan=2>Most</th>";
 print "<th colspan=2>Fewest</th></tr>\n";
@@ -109,11 +123,11 @@ foreach my $seed (1..16) {
 print "</table>\n";
 
 print "<p><table rules=\"all\" border=1 cellpadding=3>\n<tr>\n<th colspan=2>";
-print "Most overtimes</th></tr>\n";
+print "<a name=\"overtimes\">Most overtimes</a></th></tr>\n";
 print "<tr><td>${most_overtimes}OT</td><td>".join("<br>",@most_overtimes_t)."</td></tr></table>\n";
 
 print "<p><table rules=\"all\" border=1 cellpadding=3>\n<tr>\n<th colspan=7>";
-print "Teams still alive after each round, by seed</th></tr>\n";
+print "<a name=\"survival\">Teams still alive after each round, by seed</a></th></tr>\n";
 print "<tr>\n";
 print "<th>Seed</th>";
 foreach my $r (1..6) {
@@ -131,7 +145,7 @@ print "</table>\n";
 
 my $year = 1900 + (localtime())[5];
 print "<p><table rules=\"all\" border=1 cellpadding=3\n<tr>\n<th colspan=4>";
-print "Longest active tournament streaks</th></tr><tr><th>Team</th><th>Years</th><th>Avg seed</th><th>Avg games won</th></tr>\n";
+print "<a name=\"streaks\">Longest active tournament streaks</a></th></tr><tr><th>Team</th><th>Years</th><th>Avg seed</th><th>Avg games won</th></tr>\n";
 my %streak;
 my %avgseed;
 my %avgwon;
@@ -163,7 +177,7 @@ print "</table>\n";
 my %avg_mov;
 my %min_mov;
 print "<p><table rules=\"all\" border=1 cellpadding=3\n<tr>\n<th colspan=3>";
-print "Most dominant champions</th></tr><tr><th>Team</th><th>Average margin of victory</th><th>Minimum margin of victory</th></tr>\n";
+print "<a name=\"champions\">Most dominant champions</a></th></tr><tr><th>Team</th><th>Average margin of victory</th><th>Minimum margin of victory</th></tr>\n";
 $count = 0;
 foreach my $mov (sort { $b <=> $a } keys %avg_mov) {
 	foreach my $team (@{$avg_mov{$mov}}) {
@@ -175,7 +189,7 @@ foreach my $mov (sort { $b <=> $a } keys %avg_mov) {
 print "</table>\n";
 
 print "<p><table rules=\"all\" border=1 cellpadding=3\n<tr>\n<th colspan=17>";
-print "Odds of winning for all seed pairings</th></tr><tr><td></td>\n";
+print "<a name=\"pairings\">Odds of winning for all seed pairings</a></th></tr><tr><td></td>\n";
 foreach my $col (1..16) {
 	print "<th>$col</th>";
 }
