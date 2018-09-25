@@ -29,6 +29,25 @@ foreach my $tourney (<????$tourney>) {
 	show_stats($tourney);
 }
 
+%seed_expectations = (
+	1 => 4,
+	2 => 3,
+	3 => 2,
+	4 => 2,
+	5 => 1,
+	6 => 1,
+	7 => 1,
+	8 => 1,
+	9 => 0,
+	10 => 0,
+	11 => 0,
+	12 => 0,
+	13 => 0,
+	14 => 0,
+	15 => 0,
+	16 => 0
+);
+
 print "<html>\n<head>\n<title>Bracket statistics</title>\n";
 print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/_bracket.css\">\n";
 print "<style type=\"text/css\">\nth {color:#000000;background:#cccccc}\n</style>\n";
@@ -182,6 +201,38 @@ foreach my $row (1..16) {
 }
 print "</table>\n";
 
+
+my $endyear = 1900 + (localtime())[5];
+my $startyear = int($endyear / 10) * 10;
+print "<p><table rules=\"all\" border=1 cellpadding=3\n<tr>\n<th colspan=5>";
+print "<a name=\"achievers\">Under/overachievers, $startyear-$endyear</a></th></tr><tr><th>Team</th><th>Games won</th><th>Seed expectations</th><th>diff</th><th>ratio</th></tr>\n";
+my %totalwon;
+my %shouldawon;
+foreach my $t (keys %seeding) {
+	for my $y ($startyear..$endyear) {
+		my $sum = 0;
+		my $totalwon = 0;
+		if (exists $seeding{$t}{$y}) {
+			$totalwon{$t} += $gameswon{$t}{$y};
+			$shouldawon{$t} += $seed_expectations{$seeding{$t}{$y}};
+		}
+	}
+}
+foreach my $t (sort { $totalwon{$b}-$shouldawon{$b} <=> $totalwon{$a}-$shouldawon{$a} || $totalwon{$b}/($shouldawon{$b}||1) <=> $totalwon{$a}/($shouldawon{$a}||1) || $totalwon{$b} <=> $totalwon{$a} || $a cmp $b } keys %gameswon) {
+	next if $shouldawon{$t} < 3;
+	my $ratio = $totalwon{$t}/$shouldawon{$t};
+	$bestratio ||= $ratio;
+	my $color = 0x888888;
+	if ($ratio > 1) {
+		$color = 0x888888 + ((0x77 * (($ratio-1)/($bestratio-1))) << 8);
+	}
+	elsif ($ratio < 1) {
+		$color = 0xff8888 - ((0x77 * $ratio) << 16);
+	}
+	printf qq(<tr bgcolor="#%06x"><td><a href="team.cgi?t=$year$tourney&q=$t">%s</a></td><td>%d</td><td>%d</td><td>%2d</td><td>%.2f</td></tr>\n),
+		$color, $t, $totalwon{$t}, $shouldawon{$t}, $totalwon{$t}-$shouldawon{$t}, $ratio;
+}
+print "</table>\n";
 
 
 sub show_stats {
