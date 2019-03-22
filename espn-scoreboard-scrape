@@ -5,10 +5,10 @@
 
 # args
 if ($ARGV[0] && $ARGV[0] =~ /^\d{4}[mnwc]$/) {
-	$tourney = $ARGV[0] || "2018m";
+	$tourney = $ARGV[0] || "2019m";
 	shift;
 }
-else { $tourney = "2018m"; }
+else { $tourney = "2019m"; }
 if ($ARGV[0] && $ARGV[0] =~ /^(\d{8})$/) { $date = $1; }
 
 # common setup
