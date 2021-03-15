@@ -4,6 +4,9 @@ use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: text/html\n\n";
 
+use FindBin 1.51 qw( $RealBin );
+use lib $RealBin;
+
 require 'bracket.pl';
 
 my $tourney = $q->param('t') || "m";

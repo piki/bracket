@@ -2,6 +2,9 @@
 
 $r1height = 30;
 
+use FindBin 1.51 qw( $RealBin );
+use lib $RealBin;
+
 require 'bracket.pl';
 
 use CGI qw/:standard/;

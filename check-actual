@@ -5,6 +5,9 @@
 #   * nobody won a game after losing a game (redundant?)
 #   * every score is N-M, with N > M
 
+use FindBin 1.51 qw( $RealBin );
+use lib $RealBin;
+
 require 'bracket.pl';
 
 if (! @ARGV || ! -d $ARGV[0]) {
