@@ -6,6 +6,9 @@
 
 @colors = ( "#e8e8e8", "#d4d4d4", "#c0c0c0", "#acacac", "#b0b0b0", "#00005f" );
 
+use FindBin 1.51 qw( $RealBin );
+use lib $RealBin;
+
 require 'bracket.pl';
 
 my $tourney = $ARGV[0] || "2019m";

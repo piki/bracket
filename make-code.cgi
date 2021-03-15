@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+use FindBin 1.51 qw( $RealBin );
+use lib $RealBin;
+
 require 'bracket.pl';
 my $tourney = $ARGV[0] || "2019m";
 setup("$tourney/teams");

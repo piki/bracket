@@ -15,6 +15,9 @@
 #   $total_games
 #   $games_alphabetical
 
+use FindBin 1.51 qw( $RealBin );
+use lib $RealBin;
+
 require 'bracket.pl';
 
 print "Content-type: text/html\n\n";

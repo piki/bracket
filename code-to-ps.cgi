@@ -6,6 +6,9 @@ $adjy = 0.05;
 $adjx = 0.05;
 $marksize = 0.12;
 
+use FindBin 1.51 qw( $RealBin );
+use lib $RealBin;
+
 require 'bracket.pl';
 require 'ps.pl';
 use CGI qw/:standard/;
