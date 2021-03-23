@@ -11,7 +11,7 @@ $q = new CGI;
 
 print "Content-type: text/html\n";
 
-my $tourney = $q->param('t') || "2019m";
+my $tourney = $q->param('t') || "2021m";
 my $sort = $q->param('sort') || "n";
 if (defined $q->param('hidejunk')) {
 	$hide = $q->param('hidejunk');
