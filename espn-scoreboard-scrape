@@ -8,10 +8,10 @@ use lib $RealBin;
 
 # args
 if ($ARGV[0] && $ARGV[0] =~ /^\d{4}[mnwc]$/) {
-	$tourney = $ARGV[0] || "2021m";
+	$tourney = $ARGV[0] || "2022m";
 	shift;
 }
-else { $tourney = "2021m"; }
+else { $tourney = "2022m"; }
 if ($ARGV[0] && $ARGV[0] =~ /^(\d{8})$/) { $date = $1; }
 
 # common setup

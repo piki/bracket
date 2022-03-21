@@ -11,7 +11,7 @@ print "Content-type: text/html\n\n";
 print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/_bracket.css\">\n";
 $|=1;
 
-my $tourney = $q->param('t') || "2021m";
+my $tourney = $q->param('t') || "2022m";
 $tourney =~ s/[^0-9mwn]+//g;
 my $title = make_title($tourney);
 if ($q->param('actual')) {
