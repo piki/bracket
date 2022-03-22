@@ -7,6 +7,10 @@ use lib $RealBin;
 #$DEBUG = 1;
 
 # args
+if (-r $ARGV[0]) {
+	$canned = $ARGV[0];
+	shift @ARGV;
+}
 if ($ARGV[0] && $ARGV[0] =~ /^\d{4}[mnwc]$/) {
 	$tourney = $ARGV[0] || "2022m";
 	shift;
@@ -51,7 +55,7 @@ foreach my $g (32..63) {
 	$lookup{$team{$b}.$team{$a}} = $g;
 }
 
-# scrape an ESPN scoreboard page
+# scrape a CBS scoreboard page
 my ($sport, $confId);
 if ($tourney =~ /m$/) { $sport = "college-basketball"; $confId = "ncaa-tournament"; }
 elsif ($tourney =~ /n$/) { $sport = "college-basketball"; $confId = "nit"; }
@@ -61,7 +65,7 @@ my $url = "http://www.cbssports.com/$sport/scoreboard/$confId";
 if ($date) { $url .= "/$date"; }
 print STDERR "$url\n";
 if ($canned) {
-	open(WGET, "<scoreboard.html");
+	open(WGET, "<$canned");
 }
 else {
 	open(WGET, "wget -qO - \"$url\"|") || die "wget: $!";
@@ -71,41 +75,28 @@ my $ingame = 0;
 my $away = "";
 my $home = "";
 my $clock = "";
+#$/ = "<tr";
 while (<WGET>) {
 	my $g;
 	print SCOREBOARD if !$canned;
-	if (m!<div id=.*class=.*postgame.*>!) {
-		$ingame = 1;
-		print STDERR "$.: INGAME := $ingame\n" if $DEBUG;
-	}
-	elsif (m!(FINAL\S*)!) {
+
+	while (m!<div id="game-\d+"[^>]*><div class="live-update"><div class="top-bar"><div class="game-status postgame"><span class="game-status postgame">(FINAL(/\w+)?)</span></div><div class="broadcaster"></div></div><div class="in-progress-table section"><table class=""><thead><tr><th></th><th>1</th><th>2</th>\S*<th>T</th></tr></thead><tbody><tr class=""><td class="team team--collegebasketball">(?:<span class="marker"><span class="icon-moon-caret-right"></span></span>)?<a href="[^"]+"><img src="[^"]+" class="logo"/></a><span class="rank">[^<]+</span><a href="[^"]+" class="team" target="_blank">([^<]+)</a><span class="record">\S+</span></td>\S+<td class="">(\d+)</td></tr><tr class=""><td class="team team--collegebasketball">(?:<span class="marker"><span class="icon-moon-caret-right"></span></span>)?<a href="[^"]+"><img src="[^"]+" class="logo"/></a><span class="rank">[^<]+</span><a href="[^"]+" class="team" target="_blank">([^<]+)</a><span class="record">\S+</span></td>\S+<td class="">(\d+)</td></tr></tbody></table></div>(.*)!) {
 		$clock = $1;
-	}
-	elsif ($ingame && !$away && m!class="team">(.*)</a>!) {
-		$away = decode($1);
+		$away = $3;
+		$away_score = $4;
+		$home = $5;
+		$home_score = $6;
+		$_ = $7;
+		$away = decode($away);
 		$away = $rename{$away} || $away;
-		print STDERR "$.: AWAY := $away\n" if $DEBUG;
-	}
-	elsif ($ingame && $away && !$home && m!<td>(\d+)</td>!) {
-		$away_score = $1;
-		print STDERR "$.: AWAY_SCORE := $away_score\n" if $DEBUG;
-	}
-	elsif ($ingame && $away && !$home && m!class="team">(.*)</a>!) {
-		$home = decode($1);
+		$home = decode($home);
 		$home = $rename{$home} || $home;
-		print STDERR "$.: HOME := $home\n" if $DEBUG;
-	}
-	elsif ($ingame && $away && $home && m!<td>(\d+)</td>!) {
-		$home_score = $1;
-		print STDERR "$.: HOME_SCORE := $home_score\n" if $DEBUG;
-	}
-	elsif ($ingame && $away && $home && m!</tr></tbody></table></div>!) {
+		print STDERR "clock=$clock away=$away ($away_score) home=$home ($home_score)\n" if $DEBUG;
 		$g = $lookup{$home.$away};
 		if (!$g) {
 			print STDERR "Can't find game number for \"$home\" vs. \"$away\"\n";
 		}
 		else {
-			#print STDERR "g=$g\n";
 			$state{$g}{away} = $away;
 			$state{$g}{home} = $home;
 			$state{$g}{away_score} = $away_score;
@@ -113,13 +104,9 @@ while (<WGET>) {
 			$state{$g}{clock} = $clock;
 			print STDERR "score=\"$state{$g}{away_score}\" to \"$state{$g}{home_score}\"\n" if $DEBUG;
 		}
-		$home = $away = $clock = "";
-		$ingame = 0;
-		print STDERR "$.: INGAME := $ingame\n" if $DEBUG;
 	}
 }
 
-#show_and_set_out();
 show_and_set_out();
 
 open(ACTUAL, ">$tourney/actual.new");
@@ -164,6 +151,7 @@ sub timeleft {
 sub decode {
 	$ret = $_[0];
 	$ret =~ s/&#(\d+);/chr($1)/ge;
+	$ret =~ s/&#x([0-9a-fA-F]+);/chr(hex($1))/ge;
 	$ret =~ s/&amp;/&/g;
 	$ret;
 }
