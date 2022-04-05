@@ -7,7 +7,7 @@ use lib $RealBin;
 #$DEBUG = 1;
 
 # args
-if (-r $ARGV[0]) {
+if ($ARGV[0] && -r $ARGV[0]) {
 	$canned = $ARGV[0];
 	shift @ARGV;
 }
