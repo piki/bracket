@@ -12,10 +12,10 @@ if ($ARGV[0] && -r $ARGV[0]) {
 	shift @ARGV;
 }
 if ($ARGV[0] && $ARGV[0] =~ /^\d{4}[mnwc]$/) {
-	$tourney = $ARGV[0] || "2022m";
+	$tourney = $ARGV[0] || "2023m";
 	shift;
 }
-else { $tourney = "2022m"; }
+else { $tourney = "2023m"; }
 if ($ARGV[0] && $ARGV[0] =~ /^(\d{8})$/) { $date = $1; }
 
 # common setup
