@@ -85,8 +85,8 @@ foreach my $i (0..7) {
 	my $label = $game{63-$i};
 	$label =~ s/\.\d+//g;
 	print "<tr><td>$label</td><td>$closest[$i]</td>"
-		."<td>".(join"<br>",@{$closest_t[$i]})."</td><td>$furthest[$i]</td>"
-		."<td>".(join"<br>",@{$furthest_t[$i]})."</td>"
+		."<td>".(join"<br>",trunc_list(8,@{$closest_t[$i]}))."</td><td>$furthest[$i]</td>"
+		."<td>".(join"<br>",trunc_list(8,@{$furthest_t[$i]}))."</td>"
 		."<td>".int(0.5+$total[$i]/$count[$i])."</td></tr>\n";
 }
 print "</table>\n";
@@ -99,8 +99,8 @@ print "<th colspan=2>Largest</th></tr>\n";
 print "<tr><th>pts</th><th>teams</th><th>pts</th><th>teams</th></tr>\n";
 foreach my $r (1..6) {
 	print "<tr><td>$round_name[$r]</td><td>$r_closest[$r]</td>"
-		."<td>".(join"<br>",@{$r_closest_t[$r]})."</td><td>$r_furthest[$r]</td>"
-		."<td>".(join"<br>",@{$r_furthest_t[$r]})."</td></tr>\n";
+		."<td>".(join"<br>",trunc_list(8,@{$r_closest_t[$r]}))."</td><td>$r_furthest[$r]</td>"
+		."<td>".(join"<br>",trunc_list(8,@{$r_furthest_t[$r]}))."</td></tr>\n";
 }
 print "</table>\n";
 
@@ -156,7 +156,7 @@ foreach my $t (keys %seeding) {
 	my $y = $year;
 	my $sum = 0;
 	my $totalwon = 0;
-	while (exists $seeding{$t}{$y}) {
+	while (exists $seeding{$t}{$y} || $y == 2020) {
 		$sum += $seeding{$t}{$y} if $y < $year;
 		$totalwon += $gameswon{$t}{$y} if $y < $year;
 print "<!-- gameswon{$t}{$y} = $gameswon{$t}{$y} -->\n";
@@ -187,7 +187,7 @@ foreach my $mov (sort { $b <=> $a } keys %avg_mov) {
 		my ($tlink) = $team =~ /\((\d{4})\)/;
 		print qq(<tr><td><a href="standings.cgi?t=$tlink$tourney">$team</a></td><td>$mov</td><td>$min_mov{$team}</td></tr>\n);
 	}
-	last if ++$count == 20;
+	#last if ++$count == 20;
 }
 print "</table>\n";
 
@@ -220,7 +220,7 @@ print "</table>\n";
 
 
 my $endyear = 1900 + (localtime())[5];
-my $startyear = int($endyear / 10) * 10;
+my $startyear = $endyear - 20;
 print "<p><table rules=\"all\" border=1 cellpadding=3\n<tr>\n<th colspan=5>";
 print "<a name=\"achievers\">Under/overachievers, $startyear-$endyear</a></th></tr><tr><th>Team</th><th>Games won</th><th>Seed expectations</th><th>diff</th><th>ratio</th></tr>\n";
 my %totalwon;
@@ -236,6 +236,7 @@ foreach my $t (keys %seeding) {
 	}
 }
 foreach my $t (sort { $totalwon{$b}-$shouldawon{$b} <=> $totalwon{$a}-$shouldawon{$a} || $totalwon{$b}/($shouldawon{$b}||1) <=> $totalwon{$a}/($shouldawon{$a}||1) || $totalwon{$b} <=> $totalwon{$a} || $a cmp $b } keys %gameswon) {
+	next if abs($totalwon{$t}-$shouldawon{$t}) < 5;
 	next if $shouldawon{$t} < 3;
 	my $ratio = $totalwon{$t}/$shouldawon{$t};
 	$bestratio ||= $ratio;
@@ -251,6 +252,9 @@ foreach my $t (sort { $totalwon{$b}-$shouldawon{$b} <=> $totalwon{$a}-$shouldawo
 }
 print "</table>\n";
 
+sub linkify {
+  "<a href=\"standings.cgi?t=$_[0]\">$_[0]</a>"
+}
 
 sub show_stats {
 	my $tourney = $_[0];
@@ -274,7 +278,7 @@ sub show_stats {
 
 			next if !(defined $score_winner[$g] && defined $score_loser[$g]);
 			my $spread = $score_winner[$g] - $score_loser[$g];
-			my $name = "(".int($a).")$team{$a} - (".int($b).")$team{$b}, $score_winner[$g]-$score_loser[$g] ($tourney)";
+			my $name = "(".int($a).")$team{$a} - (".int($b).")$team{$b}, $score_winner[$g]-$score_loser[$g] (".linkify($tourney).")";
 
 			if ($spread == $closest[$i]) {
 				push @{$closest_t[$i]}, $name;
@@ -322,8 +326,8 @@ sub show_stats {
 			$winning_count[int($a)][int($b)]++;
 		}
 
-		my $winner_name = "(".int($a).")$team{$a} ($tourney)";
-		my $loser_name = "(".int($b).")$team{$b} ($tourney)";
+		my $winner_name = "(".int($a).")$team{$a} (".linkify($tourney).")";
+		my $loser_name = "(".int($b).")$team{$b} (".linkify($tourney).")";
 		if ($r == $most_won[int($a)]) {
 			push @{$most_won_t[int($a)]}, $winner_name;
 		}
@@ -342,7 +346,7 @@ sub show_stats {
 
 		next if !(defined $score_winner[$g] && defined $score_loser[$g]);
 		my $spread = $score_winner[$g] - $score_loser[$g];
-		my $name = "(".int($a).")$team{$a} - (".int($b).")$team{$b}, $score_winner[$g]-$score_loser[$g] ($tourney)";
+		my $name = "(".int($a).")$team{$a} - (".int($b).")$team{$b}, $score_winner[$g]-$score_loser[$g] (".linkify($tourney).")";
 
 		if ($a == $champ) {
 			$champ_games_played++;
