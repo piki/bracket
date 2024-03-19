@@ -8,7 +8,7 @@ use CGI qw/:standard/;
 $q = new CGI;
 print "Content-type: text/html\n\n";
 
-my $tourney = $q->param('t') || "2023m";
+my $tourney = $q->param('t') || "2024m";
 setup("$tourney/teams");
 my $who = $q->param('n');
 my @actual = @{(read_winners("$tourney/actual"))[0]};
