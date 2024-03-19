@@ -1,0 +1,84 @@
+#!/usr/bin/perl
+#
+# Make a bracket code based on a ranking file, e.g., KenPom
+# The file should be TSV, with rank in the first column and team name in
+# the second.
+#
+# Usage:
+#   ./make-expert-code kenpom.txt
+
+use FindBin 1.51 qw( $RealBin );
+use lib $RealBin;
+
+require 'bracket.pl';
+
+my $tourney = "2024m";
+setup("$tourney/teams");
+while (my ($seed, $name) = each %team) {
+	if ($name =~ m#^(.*)/(.*)$#) {
+		$seed_by_name{$1} = $seed;
+		$seed_by_name{$2} = $seed;
+	}
+	else {
+		$seed_by_name{$name} = $seed;
+	}
+}
+
+# read team alias file
+open(INP, "<teams-espn-map");
+while (<INP>) {
+  /(.*) => (.*)/ || next;
+  $rename{$1} = $2;
+}
+
+# read the rank file into %rank
+while (<>) {
+  chomp;
+	my ($r, $t) = split/\t/;
+	$t = $rename{$t} || $t;
+	$rank{$t} = $r;
+}
+
+# use %rank to predict @winner and @upset values
+#   $winner[game] = seed
+#   $upset[game] is true if the lower seed (higher number) wins
+for (my $g=63; $g>=1; $g--) {
+  $game{$g} ||= $winner[$g*2+1] . "," . $winner[$g*2];
+	my ($s1, $s2) = split/,/, $game{$g};
+	if ($team{$s2} =~ /\//) {
+		my ($pi1, $pi2) = split/\//, $team{$s2};
+		print "game ${g}PI: $s2: ";
+		$team{$s2} = guess_winner($pi1, $pi2);
+		print " -> $team{$s2} ($s2)\n";
+	}
+	print "game $g: $game{$g}: ";
+	my $wteam = guess_winner($team{$s1}, $team{$s2});
+	my $wseed = $seed_by_name{$wteam};
+	print " -> $wteam ($wseed)\n";
+	$winner[$g] = $wseed;
+	$upset[$g] = $wseed == min($s1, $s2) ? 0 : 1;
+}
+
+# print out the code corresponding to @upset
+foreach $i (0..7) { $code[$i] = 0; }
+foreach $i (1..63) {
+	if ($upset[$i]) {
+		$code[int((63-$i)/8)] |= (1<<((63-$i)%8));
+	}
+}
+print join(".",@code), "\n";
+
+# given two team names, predict the winner and return its name
+sub guess_winner {
+	my ($t1, $t2) = @_;
+	my $r1 = $rank{$t1};
+	my $r2 = $rank{$t2};
+	if (!$r1) { print "$t1 has no rank\n"; exit 1; }
+	if (!$r2) { print "$t2 has no rank\n"; exit 1; }
+	print "$t1 ($r1) vs $t2 ($r2)";
+	if ($r1 < $r2) { return $t1; } else { return $t2; }
+}
+
+sub min {
+	$_[0] < $_[1] ? $_[0] : $_[1]
+}

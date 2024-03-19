@@ -194,6 +194,12 @@ sub log2 {
         log($_[0])/log(2);
 }
 
+# set up some global variables:
+#   $team[seed.region] = name
+#   $bracket[$region] = name
+#   $game[number] = "seed.region,seed.region"
+#   $round_name[round_number] = name
+#   $score_factor[round_number] = points
 sub setup {
 	my $config = $_[0];
 	open(CONFIG, "<$config") || die "$config: $!";
