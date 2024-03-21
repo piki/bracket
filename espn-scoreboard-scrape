@@ -80,13 +80,13 @@ while (<WGET>) {
 	my $g;
 	print SCOREBOARD if !$canned;
 
-	while (m!<div id="game-\d+"[^>]*><div class="live-update"><div class="top-bar"><div class="game-status postgame"><span class="game-status postgame"><div>(FINAL(/\w+)?)</div></span></div><div class="broadcaster"></div></div><div class="in-progress-table section"><table class=""><thead><tr><th[^>]*></th><th>1</th><th>2</th>\S*<th>T</th></tr></thead><tbody><tr class=""><td class="team team--collegebasketball">(?:<span class="marker"><span class="icon-moon-caret-right"></span></span>)?<a href="[^"]+"><img src="[^"]+" class="logo"[^/>]*/></a><span class="rank">[^<]+</span><a href="[^"]+"[^>]*>([^<]+)</a><span class="record">\S+</span></td>\S*<td class="">(\d+)</td></tr><tr class=""><td class="team team--collegebasketball">(?:<span class="marker"><span class="icon-moon-caret-right"></span></span>)?<a href="[^"]+"><img src="[^"]+" class="logo"[^>/]*/></a><span class="rank">[^<]+</span><a href="[^"]+"[^>]*>([^<]+)</a><span class="record">\S+</span></td>\S+<td class="">(\d+)</td></tr></tbody></table></div>(.*)!) {
+	while (m!<div id="game-\d+"[^>]*><div class="live-update"><div class="top-bar"><div class="game-status postgame"><div>(final(?:/\w+)?)</div></div><div class="broadcaster"></div></div><div class=""><div class="in-progress-table section"><table class=""><thead><tr><th[^>]*></th><th>1</th><th>2</th>\S*<th[^>]*>T</th></tr></thead><tbody><tr[^>]*><td class="team team--collegebasketball"><div class="team-details-wrapper"><a href="[^"]+"><img src="[^"]+" class="logo" alt="collegebasketball team logo"/></a><span class="rank">\d+\s*</span><a href="[^"]+" class="team-name-link">([^<]+)</a><span class="record">\S+</span></div></td><td>\S*</td><td>\S*</td><td class="total">(\d+)</td></tr><tr[^>]*><td class="team team--collegebasketball"><div class="team-details-wrapper"><a href="[^"]+"><img src="[^"]+" class="logo" alt="collegebasketball team logo"/></a><span class="rank">\d+\s*</span><a href="[^"]+" class="team-name-link">([^<]+)</a><span class="record">\S+</span></div></td><td>\S+</td><td>\S+</td><td class="total">(\d+)</td></tr></tbody></table>(.*)!) {
 		$clock = $1;
-		$away = $3;
-		$away_score = $4;
-		$home = $5;
-		$home_score = $6;
-		$_ = $7;
+		$away = $2;
+		$away_score = $3;
+		$home = $4;
+		$home_score = $5;
+		$_ = $6;
 		$away = decode($away);
 		$away = $rename{$away} || $away;
 		$home = decode($home);
