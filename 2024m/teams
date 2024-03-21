@@ -15,7 +15,7 @@ team 10.1 Drake
 team 2.1  Iowa State
 team 15.1 South Dak. St.
 team 1.2  UNC
-team 16.2 Howard/Wagner
+team 16.2 Wagner
 team 8.2  Miss. St.
 team 9.2  Michigan State
 team 5.2  Saint Mary's
@@ -43,11 +43,11 @@ team 11.3 NC State
 team 3.3  Kentucky
 team 14.3 Oakland
 team 7.3  Florida
-team 10.3 Boise State/Colorado
+team 10.3 Colorado
 team 2.3  Marquette
 team 15.3 W. Kentucky
 team 1.4  Purdue
-team 16.4 Montana State/Grambling
+team 16.4 Grambling
 team 8.4  Utah State
 team 9.4  TCU
 team 5.4  Gonzaga
@@ -59,7 +59,7 @@ team 11.4 Oregon
 team 3.4  Creighton
 team 14.4 Akron
 team 7.4  Texas
-team 10.4 Virginia/Colorado State
+team 10.4 Colorado State
 team 2.4  Tennessee
 team 15.4 St. Peter's
 region 0 East
