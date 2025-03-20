@@ -4,7 +4,7 @@ use FindBin 1.51 qw( $RealBin );
 use lib $RealBin;
 
 require 'bracket.pl';
-my $tourney = $ARGV[0] || "2024m";
+my $tourney = $ARGV[0] || "2025m";
 setup("$tourney/teams");
 
 use CGI qw/:standard/;

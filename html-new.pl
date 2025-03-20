@@ -11,7 +11,7 @@ use lib $RealBin;
 
 require 'bracket.pl';
 
-my $tourney = $ARGV[0] || "2024m";
+my $tourney = $ARGV[0] || "2025m";
 my $title = make_title($tourney);
 setup("$tourney/teams");
 if ($ARGV[1] eq "actual") {

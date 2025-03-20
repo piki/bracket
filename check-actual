@@ -11,7 +11,7 @@ use lib $RealBin;
 require 'bracket.pl';
 
 if (! @ARGV || ! -d $ARGV[0]) {
-	print STDERR "Usage:\n  $0 yyyyt\n\nE.g., $0 2024m\n";
+	print STDERR "Usage:\n  $0 yyyyt\n\nE.g., $0 2025m\n";
 	exit 1;
 }
 

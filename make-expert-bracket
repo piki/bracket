@@ -12,7 +12,7 @@ use lib $RealBin;
 
 require 'bracket.pl';
 
-my $tourney = "2024m";
+my $tourney = "2025m";
 setup("$tourney/teams");
 while (my ($seed, $name) = each %team) {
 	if ($name =~ m#^(.*)/(.*)$#) {
