@@ -43,7 +43,10 @@ foreach (keys %codes) {
 	$upsets{$_} = bitcount($codes{$_});
 }
 
-$best_score = $scores{(sort { $scores{$b} <=> $scores{$a} } keys %scores)[0]};
+$best_score = $scores{(
+	sort { $scores{$b} <=> $scores{$a} }
+  grep { $_ !~ /^_/ } keys %scores
+)[0]};
 if ($q->param('sort') eq "p") {
 	@k = sort { $possibles{$b} <=> $possibles{$a} } keys %scores;
 }
