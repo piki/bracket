@@ -135,6 +135,9 @@ foreach $name (@k) {
 	if ($eliminated) {
 		print qq(<tr bgcolor=\"#ffcccc\">\n  <td><a href="code-to-html.cgi?t=$tourney&c=$codes{$name}&n=$name">$name</a></td>\n);
 	}
+	elsif ($scores{$name} == $possibles{$name} && $name !~ /^_/) {
+		print qq(<tr bgcolor=\"#ccffcc\">\n  <td><a href="code-to-html.cgi?t=$tourney&c=$codes{$name}&n=$name">$name</a></td>\n);
+	}
 	else {
 		print qq(<tr>\n  <td><a href="code-to-html.cgi?t=$tourney&c=$codes{$name}&n=$name">$name</a></td>\n);
 	}
